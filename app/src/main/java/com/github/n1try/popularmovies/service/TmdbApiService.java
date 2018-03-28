@@ -1,12 +1,13 @@
 package com.github.n1try.popularmovies.service;
 
+import com.github.n1try.popularmovies.BuildConfig;
+import com.github.n1try.popularmovies.model.Movie;
+
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
 import okhttp3.OkHttpClient;
-import popularmovies.n1try.github.com.popularmovies.BuildConfig;
-import popularmovies.n1try.github.com.popularmovies.model.Movie;
 
 public class TmdbApiService {
     private static final String API_BASE_URL = "https://api.themoviedb.org/3";

@@ -3,7 +3,7 @@ package com.github.n1try.popularmovies.ui;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import popularmovies.n1try.github.com.popularmovies.R;
+import com.github.n1try.popularmovies.R;
 
 public class MainActivity extends AppCompatActivity {
 

@@ -1,4 +1,4 @@
-package popularmovies.n1try.github.com.popularmovies;
+package com.github.n1try.popularmovies;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("popularmovies.n1try.github.com.popular_movies_android", appContext.getPackageName());
+        assertEquals("com.github.n1try.popularmovies", appContext.getPackageName());
     }
 }

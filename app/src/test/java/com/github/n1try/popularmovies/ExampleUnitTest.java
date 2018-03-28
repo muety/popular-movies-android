@@ -1,4 +1,4 @@
-package popularmovies.n1try.github.com.popularmovies;
+package com.github.n1try.popularmovies;
 
 import org.junit.Test;
 
