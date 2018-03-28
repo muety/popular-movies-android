@@ -1,4 +1,4 @@
-package popularmovies.n1try.github.com.popularmovies.ui;
+package com.github.n1try.popularmovies.ui;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;

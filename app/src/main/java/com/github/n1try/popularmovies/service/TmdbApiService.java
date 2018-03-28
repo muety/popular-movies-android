@@ -1,4 +1,4 @@
-package popularmovies.n1try.github.com.popularmovies.service;
+package com.github.n1try.popularmovies.service;
 
 import java.util.Arrays;
 import java.util.Calendar;
