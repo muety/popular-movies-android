@@ -1,5 +1,15 @@
 apply plugin: 'com.android.application'
 
+Properties props = new Properties()
+File propsFile = file('secrets.properties')
+if (propsFile.exists()) {
+    props.load(propsFile.newDataInputStream())
+} else if (System.env.TMDB_API_KEY != null) {
+    props.setProperty("TMDB_API_KEY", System.env.TMDB_API_KEY)
+} else {
+    throw new GradleException("Missing secrets.properties, check the secrets.properties")
+}
+
 android {
     compileSdkVersion 27
     defaultConfig {
@@ -12,12 +22,12 @@ android {
     }
     buildTypes {
         debug {
-            buildConfigField("String", "TMDB_API_KEY", "\"${System.getenv("TMDB_API_KEY")}\"")
+            buildConfigField("String", "TMDB_API_KEY", "\"${props.getProperty("TMDB_API_KEY")}\"")
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            buildConfigField("String", "TMDB_API_KEY", "\"${System.getenv("TMDB_API_KEY")}\"")
+            buildConfigField("String", "TMDB_API_KEY", "\"${props.getProperty("TMDB_API_KEY")}\"")
         }
     }
 }
@@ -40,4 +50,5 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.16.20'
     annotationProcessor 'org.projectlombok:lombok:1.16.20'
     implementation 'com.android.support:cardview-v7:27.1.0'
+    compile 'com.google.code.gson:gson:2.8.2'
 }

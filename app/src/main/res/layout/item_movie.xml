@@ -7,24 +7,28 @@
 
     <ImageView
         android:id="@+id/main_movie_cover_iv"
-        android:layout_width="match_parent"
+        android:layout_width="185dp"
         android:layout_height="270dp"
+        android:layout_gravity="center"
         android:adjustViewBounds="true"
         android:scaleType="fitXY" />
 
     <android.support.constraint.ConstraintLayout
-        android:layout_width="match_parent"
+        android:layout_width="185dp"
         android:layout_height="60dp"
+        android:layout_gravity="center"
         android:background="@color/colorAccent"
-        android:gravity="center">
+        android:gravity="center"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp">
 
         <TextView
             android:id="@+id/main_movie_title_tv"
-            android:layout_width="0dp"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginLeft="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="TextView"
             android:textColor="@android:color/black"
             android:textSize="14sp"
@@ -37,9 +41,7 @@
             android:id="@+id/main_movie_rating_tv"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginRight="8dp"
             android:text="TextView"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

@@ -1,5 +1,6 @@
 package com.github.n1try.popularmovies.ui;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.GridView;
@@ -26,8 +27,17 @@ public class MainActivity extends AppCompatActivity {
 
         setTitle(R.string.main_title);
 
-        List<Movie> popularMovies = TmdbApiService.getInstance().getPopularMovies();
-        movieAdapter = new MovieItemAdapter(this, popularMovies);
-        moviesGv.setAdapter(movieAdapter);
+        new AsyncTask<Void, Void, List<Movie>>() {
+            @Override
+            protected List<Movie> doInBackground(Void... voids) {
+                return TmdbApiService.getInstance().getPopularMovies();
+            }
+
+            @Override
+            protected void onPostExecute(List<Movie> movies) {
+                movieAdapter = new MovieItemAdapter(getApplicationContext(), movies);
+                moviesGv.setAdapter(movieAdapter);
+            }
+        }.execute();
     }
 }

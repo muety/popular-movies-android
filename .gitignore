@@ -7,3 +7,4 @@
 /captures
 .externalNativeBuild
 scripts/setenvs.sh
+app/secrets.properties
