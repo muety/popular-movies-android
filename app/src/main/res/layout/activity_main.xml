@@ -9,6 +9,9 @@
         android:id="@+id/main_movies_gv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:horizontalSpacing="4dp"
         android:numColumns="2"
-        android:stretchMode="columnWidth" />
+        android:padding="8dp"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="4dp" />
 </FrameLayout>

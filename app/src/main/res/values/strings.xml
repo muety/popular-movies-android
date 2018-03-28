@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">popular-movies-android</string>
+    <string name="main_title">Popular Movies</string>
 </resources>
