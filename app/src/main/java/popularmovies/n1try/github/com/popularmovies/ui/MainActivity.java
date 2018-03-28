@@ -1,9 +1,9 @@
-package popularmovies.n1try.github.com.app.ui;
+package popularmovies.n1try.github.com.popularmovies.ui;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import popularmovies.n1try.github.com.app.R;
+import popularmovies.n1try.github.com.popularmovies.R;
 
 public class MainActivity extends AppCompatActivity {
 

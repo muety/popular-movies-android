@@ -1,4 +1,4 @@
-package popularmovies.n1try.github.com.app.model;
+package popularmovies.n1try.github.com.popularmovies.model;
 
 import java.util.Date;
 

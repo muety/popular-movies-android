@@ -1,4 +1,4 @@
-package popularmovies.n1try.github.com.app;
+package popularmovies.n1try.github.com.popularmovies;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
