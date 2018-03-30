@@ -1,8 +1,10 @@
 package com.github.n1try.popularmovies.ui;
 
+import android.app.LoaderManager;
+import android.content.AsyncTaskLoader;
 import android.content.Context;
+import android.content.Loader;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -20,8 +22,9 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Movie>> {
     private static final String KEY_SORT_ORDER = "sort_order";
+    private static final int LOADER_ID = 0;
 
     @BindView(R.id.main_movies_gv)
     GridView moviesGv;
@@ -38,34 +41,11 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         prefs = getPreferences(Context.MODE_PRIVATE);
-
         MovieSortOrder order = MovieSortOrder.valueOf(prefs.getString(KEY_SORT_ORDER, MovieSortOrder.POPULAR.name()));
-        initData(order);
-    }
 
-    private void initData(final MovieSortOrder order) {
-        if (order == MovieSortOrder.TOP_RATED) setTitle(R.string.title_top_rated_movies);
-        else setTitle(R.string.title_popular_movies);
-
-        new AsyncTask<Void, Void, List<Movie>>() {
-            @Override
-            protected List<Movie> doInBackground(Void... voids) {
-                switch (order) {
-                    case POPULAR:
-                        return TmdbApiService.getInstance(getApplicationContext()).getPopularMovies();
-                    case TOP_RATED:
-                        return TmdbApiService.getInstance(getApplicationContext()).getTopRatedMovies();
-                    default:
-                        return new ArrayList<>();
-                }
-            }
-
-            @Override
-            protected void onPostExecute(List<Movie> movies) {
-                movieAdapter = new MovieItemAdapter(getApplicationContext(), movies);
-                moviesGv.setAdapter(movieAdapter);
-            }
-        }.execute();
+        Bundle bundle = new Bundle();
+        bundle.putString(KEY_SORT_ORDER, order.name());
+        getLoaderManager().initLoader(LOADER_ID, bundle, this);
     }
 
     @Override
@@ -78,17 +58,63 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        MovieSortOrder order;
+        Bundle bundle;
+
         switch (id) {
             case R.id.action_sort_popular:
-                prefs.edit().putString(KEY_SORT_ORDER, MovieSortOrder.POPULAR.name()).apply();
-                initData(MovieSortOrder.POPULAR);
+                order = MovieSortOrder.POPULAR;
+                prefs.edit().putString(KEY_SORT_ORDER, order.name()).apply();
+                bundle = new Bundle();
+                bundle.putString(KEY_SORT_ORDER, order.name());
+                getLoaderManager().restartLoader(LOADER_ID, bundle, this);
                 return true;
             case R.id.action_sort_rating:
-                prefs.edit().putString(KEY_SORT_ORDER, MovieSortOrder.TOP_RATED.name()).apply();
-                initData(MovieSortOrder.TOP_RATED);
+                order = MovieSortOrder.TOP_RATED;
+                prefs.edit().putString(KEY_SORT_ORDER, order.name()).apply();
+                bundle = new Bundle();
+                bundle.putString(KEY_SORT_ORDER, order.name());
+                getLoaderManager().restartLoader(LOADER_ID, bundle, this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public Loader<List<Movie>> onCreateLoader(int i, Bundle bundle) {
+        final MovieSortOrder order = MovieSortOrder.valueOf(bundle.getString(KEY_SORT_ORDER));
+        if (order == MovieSortOrder.TOP_RATED) setTitle(R.string.title_top_rated_movies);
+        else setTitle(R.string.title_popular_movies);
+
+        return new AsyncTaskLoader<List<Movie>>(getApplicationContext()) {
+            @Override
+            public List<Movie> loadInBackground() {
+                switch (order) {
+                    case POPULAR:
+                        return TmdbApiService.getInstance(getApplicationContext()).getPopularMovies();
+                    case TOP_RATED:
+                        return TmdbApiService.getInstance(getApplicationContext()).getTopRatedMovies();
+                    default:
+                        return new ArrayList<>();
+                }
+            }
+
+            @Override
+            protected void onStartLoading() {
+                forceLoad();
+            }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<Movie>> loader, List<Movie> movies) {
+        movieAdapter = new MovieItemAdapter(getApplicationContext(), movies);
+        moviesGv.setAdapter(movieAdapter);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<Movie>> loader) {
+        movieAdapter.clear();
     }
 }

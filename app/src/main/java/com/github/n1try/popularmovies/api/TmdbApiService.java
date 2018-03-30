@@ -28,6 +28,7 @@ import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class TmdbApiService {
     public static final String API_BASE_URL = "https://api.themoviedb.org/3";
@@ -63,14 +64,14 @@ public class TmdbApiService {
     public List<Genre> getGenres() {
         Uri uri = Uri.parse(API_BASE_URL + "/genre/movie/list").buildUpon().appendQueryParameter("api_key", API_KEY).build();
         Request request = new Request.Builder().url(uri.toString()).build();
-        Response response;
-        String body;
 
         try {
-            response = httpClient.newCall(request).execute();
+            Response response = httpClient.newCall(request).execute();
             if (!response.isSuccessful()) throw new IOException(response.message());
-            body = response.body().string();
-            return gson.fromJson(body, TmdbGenresResult.class).getGenres();
+            ResponseBody body = response.body();
+            List<Genre> genres = gson.fromJson(body.string(), TmdbGenresResult.class).getGenres();
+            body.close();
+            return genres;
         } catch (IOException e) {
             Log.e(getClass().getSimpleName(), "Could not fetch or deserialize genres.\n" + e.getMessage());
         }
@@ -97,17 +98,16 @@ public class TmdbApiService {
     private List<Movie> fetchMovieList(Uri uri) {
             Uri fetchUri = uri.buildUpon().appendQueryParameter("api_key", API_KEY).build();
             Request request = new Request.Builder().url(fetchUri.toString()).build();
-            Response response;
-            String body;
 
             try {
-                response = httpClient.newCall(request).execute();
+                Response response = httpClient.newCall(request).execute();
                 if (!response.isSuccessful()) throw new IOException(response.message());
-                body = response.body().string();
-                List<Movie> movies = gson.fromJson(body, TmdbMoviesResult.class).getResults();
+                ResponseBody body = response.body();
+                List<Movie> movies = gson.fromJson(body.string(), TmdbMoviesResult.class).getResults();
                 for (Movie m : movies) {
                     m.enrich(genres);
                 }
+                body.close();
                 return movies;
             } catch (IOException e) {
                 Log.w(getClass().getSimpleName(), "Could not fetch movies.\n" + e.getMessage());
