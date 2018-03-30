@@ -35,6 +35,8 @@ public class TmdbApiService {
     private OkHttpClient httpClient;
     private Gson gson;
 
+    private Map<Double, Genre> genres;
+
     public static TmdbApiService getInstance() {
         return ourInstance;
     }
@@ -48,6 +50,7 @@ public class TmdbApiService {
         gsonBuilder.registerTypeAdapter(TmdbGenresResult.class, new TmdbGenresResultDeserializer());
         gson = gsonBuilder.create();
 
+        genres = getGenreMap();
     }
 
     public List<Genre> getGenres() {
@@ -77,27 +80,33 @@ public class TmdbApiService {
     }
 
     public List<Movie> getPopularMovies() {
-        Map<Double, Genre> genres = getGenreMap();
+        return fetchMovieList(Uri.parse(API_BASE_URL + "/movie/popular"));
+    }
 
-        Uri uri = Uri.parse(API_BASE_URL + "/movie/popular").buildUpon().appendQueryParameter("api_key", API_KEY).build();
-        Request request = new Request.Builder().url(uri.toString()).build();
-        Response response;
-        String body;
+    public List<Movie> getTopRatedMovies() {
+        return fetchMovieList(Uri.parse(API_BASE_URL + "/movie/top_rated"));
+    }
 
-        try {
-            response = httpClient.newCall(request).execute();
-            if (!response.isSuccessful()) throw new IOException(response.message());
-            body = response.body().string();
-            List<Movie> movies = gson.fromJson(body, TmdbMoviesResult.class).getResults();
-            for (Movie m : movies) {
-                m.enrich(genres);
+    private List<Movie> fetchMovieList(Uri uri) {
+            Uri fetchUri = uri.buildUpon().appendQueryParameter("api_key", API_KEY).build();
+            Request request = new Request.Builder().url(fetchUri.toString()).build();
+            Response response;
+            String body;
+
+            try {
+                response = httpClient.newCall(request).execute();
+                if (!response.isSuccessful()) throw new IOException(response.message());
+                body = response.body().string();
+                List<Movie> movies = gson.fromJson(body, TmdbMoviesResult.class).getResults();
+                for (Movie m : movies) {
+                    m.enrich(genres);
+                }
+                return movies;
+            } catch (IOException e) {
+                Log.w(getClass().getSimpleName(), "Could not fetch movies.\n" + e.getMessage());
             }
-            return movies;
-        } catch (IOException e) {
-            Log.w(getClass().getSimpleName(), "Could not fetch popular movies.\n" + e.getMessage());
-        }
 
-        return new ArrayList<>();
+            return new ArrayList<>();
     }
 
     public static Date parseDate(String dateString) {

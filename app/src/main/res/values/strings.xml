@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">popular-movies-android</string>
-    <string name="main_title">Popular Movies</string>
+    <string name="title_popular_movies">Popular Movies</string>
+    <string name="title_top_rated_movies">Top Rated Movies</string>
+    <string name="sort_order">Sort order</string>
+    <string name="most_popular">Most popular</string>
+    <string name="top_rated">Top rated</string>
 </resources>
