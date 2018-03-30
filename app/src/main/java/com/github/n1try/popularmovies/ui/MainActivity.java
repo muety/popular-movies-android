@@ -1,5 +1,7 @@
 package com.github.n1try.popularmovies.ui;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -19,9 +21,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String KEY_SORT_ORDER = "sort_order";
+
     @BindView(R.id.main_movies_gv)
     GridView moviesGv;
+
     private MovieItemAdapter movieAdapter;
+    private SharedPreferences prefs;
 
     enum MovieSortOrder {POPULAR, TOP_RATED}
 
@@ -31,10 +37,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        setData(MovieSortOrder.POPULAR);
+        prefs = getPreferences(Context.MODE_PRIVATE);
+
+        MovieSortOrder order = MovieSortOrder.valueOf(prefs.getString(KEY_SORT_ORDER, MovieSortOrder.POPULAR.name()));
+        initData(order);
     }
 
-    private void setData(final MovieSortOrder order) {
+    private void initData(final MovieSortOrder order) {
         if (order == MovieSortOrder.TOP_RATED) setTitle(R.string.title_top_rated_movies);
         else setTitle(R.string.title_popular_movies);
 
@@ -71,10 +80,12 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_sort_popular:
-                setData(MovieSortOrder.POPULAR);
+                prefs.edit().putString(KEY_SORT_ORDER, MovieSortOrder.POPULAR.name()).apply();
+                initData(MovieSortOrder.POPULAR);
                 return true;
             case R.id.action_sort_rating:
-                setData(MovieSortOrder.TOP_RATED);
+                prefs.edit().putString(KEY_SORT_ORDER, MovieSortOrder.TOP_RATED.name()).apply();
+                initData(MovieSortOrder.TOP_RATED);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
