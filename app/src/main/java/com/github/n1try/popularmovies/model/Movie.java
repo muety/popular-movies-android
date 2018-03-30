@@ -2,6 +2,7 @@ package com.github.n1try.popularmovies.model;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,4 +26,10 @@ public class Movie {
     private double voteAverage;
     private double popularity;
     private boolean adult;
+
+    public void enrich(Map<Double, Genre> genreMap) {
+        for (Genre genre : genres) {
+            genre.setName(genreMap.get(genre.getId()).getName());
+        }
+    }
 }

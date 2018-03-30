@@ -1,16 +1,20 @@
-package com.github.n1try.popularmovies.service;
+package com.github.n1try.popularmovies.api;
 
 import android.net.Uri;
 import android.util.Log;
 
 import com.github.n1try.popularmovies.BuildConfig;
+import com.github.n1try.popularmovies.deserialization.TmdbGenresResultDeserializer;
+import com.github.n1try.popularmovies.deserialization.TmdbMovieDeserializer;
+import com.github.n1try.popularmovies.deserialization.TmdbMoviesResultDeserializer;
 import com.github.n1try.popularmovies.model.Genre;
 import com.github.n1try.popularmovies.model.Movie;
+import com.github.n1try.popularmovies.model.TmdbGenresResult;
+import com.github.n1try.popularmovies.model.TmdbMoviesResult;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,8 +28,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class TmdbApiService {
-    private static final String API_BASE_URL = "https://api.themoviedb.org/3";
-    private static final String API_IMAGE_BASE_URL = "http://image.tmdb.org/t/p/w185";
+    public static final String API_BASE_URL = "https://api.themoviedb.org/3";
+    public static final String API_IMAGE_BASE_URL = "http://image.tmdb.org/t/p/w185";
     private static final String API_KEY = BuildConfig.TMDB_API_KEY;
     private static final TmdbApiService ourInstance = new TmdbApiService();
     private OkHttpClient httpClient;
@@ -37,7 +41,13 @@ public class TmdbApiService {
 
     private TmdbApiService() {
         httpClient = new OkHttpClient();
-        gson = new Gson();
+
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(Movie.class, new TmdbMovieDeserializer());
+        gsonBuilder.registerTypeAdapter(TmdbMoviesResult.class, new TmdbMoviesResultDeserializer());
+        gsonBuilder.registerTypeAdapter(TmdbGenresResult.class, new TmdbGenresResultDeserializer());
+        gson = gsonBuilder.create();
+
     }
 
     public List<Genre> getGenres() {
@@ -50,18 +60,12 @@ public class TmdbApiService {
             response = httpClient.newCall(request).execute();
             if (!response.isSuccessful()) throw new IOException(response.message());
             body = response.body().string();
+            return gson.fromJson(body, TmdbGenresResult.class).getGenres();
         } catch (IOException e) {
-            Log.w(getClass().getSimpleName(), "Could not fetch genres.\n" + e.getMessage());
-            return new ArrayList<>();
+            Log.e(getClass().getSimpleName(), "Could not fetch or deserialize genres.\n" + e.getMessage());
         }
 
-
-        Type genreListType = new TypeToken<Map<String, List<Genre>>>() {
-        }.getType();
-        Map<String, List<Genre>> parsedResult = gson.fromJson(body, genreListType);
-        return parsedResult.containsKey("genres")
-                ? parsedResult.get("genres")
-                : new ArrayList<Genre>();
+        return new ArrayList<>();
     }
 
     public Map<Double, Genre> getGenreMap() {
@@ -84,49 +88,19 @@ public class TmdbApiService {
             response = httpClient.newCall(request).execute();
             if (!response.isSuccessful()) throw new IOException(response.message());
             body = response.body().string();
+            List<Movie> movies = gson.fromJson(body, TmdbMoviesResult.class).getResults();
+            for (Movie m : movies) {
+                m.enrich(genres);
+            }
+            return movies;
         } catch (IOException e) {
             Log.w(getClass().getSimpleName(), "Could not fetch popular movies.\n" + e.getMessage());
-            return new ArrayList<>();
         }
 
-
-        Type mapType = new TypeToken<Map<String, Object>>() {
-        }.getType();
-        Map<String, Object> parsedResult = gson.fromJson(body, mapType);
-        return parsedResult.containsKey("results")
-                ? deserializeMoviesList((List<Map<String, Object>>) parsedResult.get("results"), genres)
-                : new ArrayList<Movie>();
+        return new ArrayList<>();
     }
 
-    private static List<Movie> deserializeMoviesList(List<Map<String, Object>> data, Map<Double, Genre> genres) {
-        List<Movie> movies = new ArrayList<>();
-        for (Map entry : data) {
-            movies.add(Movie.builder()
-                    .id((Double) entry.get("id"))
-                    .voteAverage((Double) entry.get("vote_average"))
-                    .title((String) entry.get("title"))
-                    .popularity((Double) entry.get("popularity"))
-                    .posterPath(API_IMAGE_BASE_URL + entry.get("poster_path"))
-                    .backdropPath(API_IMAGE_BASE_URL + entry.get("backdrop_path"))
-                    .adult((Boolean) entry.get("adult"))
-                    .releaseDate(parseDate((String) entry.get("release_date")))
-                    .overview((String) entry.get("overview"))
-                    .genres(resolveMovieGenres((List) entry.get("genre_ids"), genres))
-                    .build()
-            );
-        }
-        return movies;
-    }
-
-    private static List<Genre> resolveMovieGenres(List<Double> genreIds, Map<Double, Genre> allGenres) {
-        List<Genre> genres = new ArrayList<>();
-        for (Double id : genreIds) {
-            genres.add(allGenres.get(id));
-        }
-        return genres;
-    }
-
-    private static Date parseDate(String dateString) {
+    public static Date parseDate(String dateString) {
         SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd");
         try {
             return parser.parse(dateString);

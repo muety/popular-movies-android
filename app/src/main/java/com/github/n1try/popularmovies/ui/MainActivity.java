@@ -6,8 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.GridView;
 
 import com.github.n1try.popularmovies.R;
+import com.github.n1try.popularmovies.api.TmdbApiService;
 import com.github.n1try.popularmovies.model.Movie;
-import com.github.n1try.popularmovies.service.TmdbApiService;
 
 import java.util.List;
 
