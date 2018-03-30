@@ -52,9 +52,9 @@ public class MainActivity extends AppCompatActivity {
             protected List<Movie> doInBackground(Void... voids) {
                 switch (order) {
                     case POPULAR:
-                        return TmdbApiService.getInstance().getPopularMovies();
+                        return TmdbApiService.getInstance(getApplicationContext()).getPopularMovies();
                     case TOP_RATED:
-                        return TmdbApiService.getInstance().getTopRatedMovies();
+                        return TmdbApiService.getInstance(getApplicationContext()).getTopRatedMovies();
                     default:
                         return new ArrayList<>();
                 }

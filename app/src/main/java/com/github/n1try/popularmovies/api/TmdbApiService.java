@@ -1,5 +1,6 @@
 package com.github.n1try.popularmovies.api;
 
+import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
@@ -23,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -31,18 +33,23 @@ public class TmdbApiService {
     public static final String API_BASE_URL = "https://api.themoviedb.org/3";
     public static final String API_IMAGE_BASE_URL = "http://image.tmdb.org/t/p/w185";
     private static final String API_KEY = BuildConfig.TMDB_API_KEY;
-    private static final TmdbApiService ourInstance = new TmdbApiService();
+    private static TmdbApiService ourInstance;
     private OkHttpClient httpClient;
     private Gson gson;
 
     private Map<Double, Genre> genres;
 
-    public static TmdbApiService getInstance() {
+    public static TmdbApiService getInstance(Context context) {
+        if (ourInstance == null) {
+            ourInstance = new TmdbApiService(context);
+        }
         return ourInstance;
     }
 
-    private TmdbApiService() {
-        httpClient = new OkHttpClient();
+    private TmdbApiService(Context context) {
+        httpClient = new OkHttpClient.Builder()
+                .cache(new Cache(context.getCacheDir(), 1024 * 1014 * 10))
+                .build();
 
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(Movie.class, new TmdbMovieDeserializer());
