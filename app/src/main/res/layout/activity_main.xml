@@ -12,7 +12,10 @@
         android:columnWidth="185dp"
         android:horizontalSpacing="4dp"
         android:numColumns="auto_fit"
-        android:padding="8dp"
+        android:paddingBottom="8dp"
+        android:paddingEnd="4dp"
+        android:paddingStart="4dp"
+        android:paddingTop="8dp"
         android:stretchMode="columnWidth"
         android:verticalSpacing="8dp" />
 </FrameLayout>

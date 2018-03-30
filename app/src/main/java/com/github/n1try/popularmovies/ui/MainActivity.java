@@ -1,3 +1,9 @@
+/*
+    TODO: JavaDocs
+    TODO: Infinite scroll
+    TODO: Tablet layout
+ */
+
 package com.github.n1try.popularmovies.ui;
 
 import android.app.LoaderManager;

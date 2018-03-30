@@ -20,7 +20,7 @@ public class TmdbMovieSerializer implements JsonSerializer<Movie> {
         el.addProperty("title", src.getTitle());
         el.addProperty("popularity", src.getPopularity());
         el.addProperty("poster_path", src.getPosterPath().substring(src.getPosterPath().lastIndexOf("/")));
-        el.addProperty("backdrop_path", src.getBackdropPath());
+        el.addProperty("backdrop_path", src.getBackdropPath().substring(src.getBackdropPath().lastIndexOf("/")));
         el.addProperty("adult", src.isAdult());
         el.addProperty("release_date", Utils.dumpDate(src.getReleaseDate()));
         el.addProperty("overview", src.getOverview());

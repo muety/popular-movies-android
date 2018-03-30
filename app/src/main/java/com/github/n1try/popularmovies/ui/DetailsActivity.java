@@ -47,7 +47,8 @@ public class DetailsActivity extends AppCompatActivity {
         movieSummaryTv.setText(movie.getOverview());
         movieRatingTv.setText(String.valueOf(movie.getVoteAverage()));
         moviePopularityTv.setText(String.valueOf((int) Math.round(movie.getPopularity())));
-        Picasso.with(this).load(movie.getPosterPath()).into(movieCoverIv);
+        //Picasso.with(this).load(movie.getPosterPath()).into(movieCoverIv);
+        Picasso.with(this).load(movie.getBackdropPath()).into(movieCoverIv);
 
     }
 

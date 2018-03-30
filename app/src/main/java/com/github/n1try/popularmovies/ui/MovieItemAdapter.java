@@ -41,11 +41,13 @@ public class MovieItemAdapter extends ArrayAdapter<Movie> {
         final Movie movie = getItem(position);
 
         final View movieTextContainer = convertView.findViewById(R.id.main_movie_text_container);
+        final View itemContainer = convertView.findViewById(R.id.item_container);
         final ImageView movieCoverIv = convertView.findViewById(R.id.details_movie_cover_iv);
         final TextView movieTitleTv = convertView.findViewById(R.id.main_movie_title_tv);
         final TextView movieRatingTv = convertView.findViewById(R.id.main_movie_rating_tv);
         final TextView movieGenresTv = convertView.findViewById(R.id.main_movie_genre_tv);
 
+        itemContainer.setVisibility(View.GONE);
         movieTitleTv.setText(movie.getTitle());
         movieRatingTv.setText(String.valueOf(movie.getVoteAverage()));
         movieGenresTv.setText(TextUtils.join(", ", movie.getGenres()));
@@ -67,6 +69,8 @@ public class MovieItemAdapter extends ArrayAdapter<Movie> {
                     movieRatingTv.setTextColor(getContext().getResources().getColor(R.color.colorTextDark));
                     movieGenresTv.setTextColor(getContext().getResources().getColor(R.color.colorTextDark));
                 }
+
+                itemContainer.setVisibility(View.VISIBLE);
             }
 
             @Override
