@@ -14,6 +14,7 @@
         android:scaleType="fitXY" />
 
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/main_movie_text_container"
         android:layout_width="185dp"
         android:layout_height="60dp"
         android:layout_gravity="center"
@@ -29,6 +30,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="TextView"
+            android:textColor="@color/colorTextMedium"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="@+id/main_movie_title_tv"
             app:layout_constraintTop_toBottomOf="@+id/main_movie_title_tv" />
@@ -41,7 +43,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="TextView"
-            android:textColor="@android:color/black"
+            android:textColor="@color/colorTextDark"
             android:textSize="14sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -52,12 +54,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="TextView"
+            android:textColor="@color/colorTextMedium"
             android:textSize="16dp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-            app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent" />
     </android.support.constraint.ConstraintLayout>
 
 </LinearLayout>
