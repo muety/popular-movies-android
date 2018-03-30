@@ -8,15 +8,15 @@
 
     <ImageView
         android:id="@+id/details_movie_cover_iv"
-        android:layout_width="185dp"
-        android:layout_height="270dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
         android:adjustViewBounds="true"
         android:scaleType="fitXY" />
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/main_movie_text_container"
-        android:layout_width="185dp"
+        android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_gravity="center"
         android:background="@color/colorAccent"

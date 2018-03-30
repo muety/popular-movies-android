@@ -9,13 +9,11 @@
         android:id="@+id/main_movies_gv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:columnWidth="185dp"
         android:horizontalSpacing="4dp"
-        android:numColumns="auto_fit"
-        android:paddingBottom="8dp"
+        android:numColumns="@integer/main_num_grid_cols_"
         android:paddingEnd="4dp"
         android:paddingStart="4dp"
-        android:paddingTop="8dp"
+        android:paddingTop="4dp"
         android:stretchMode="columnWidth"
-        android:verticalSpacing="8dp" />
+        android:verticalSpacing="4dp" />
 </FrameLayout>

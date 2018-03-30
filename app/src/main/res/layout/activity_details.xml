@@ -62,6 +62,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
                     android:lineSpacingMultiplier="1.5"
                     android:text="TextView"
                     app:layout_constraintEnd_toEndOf="@+id/textView6"

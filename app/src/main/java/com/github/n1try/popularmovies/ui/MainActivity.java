@@ -2,6 +2,7 @@
     TODO: JavaDocs
     TODO: Infinite scroll
     TODO: Tablet layout
+    TODO: Offline message
  */
 
 package com.github.n1try.popularmovies.ui;
