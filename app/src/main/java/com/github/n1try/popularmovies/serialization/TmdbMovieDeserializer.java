@@ -1,8 +1,9 @@
-package com.github.n1try.popularmovies.deserialization;
+package com.github.n1try.popularmovies.serialization;
 
 import com.github.n1try.popularmovies.api.TmdbApiService;
 import com.github.n1try.popularmovies.model.Genre;
 import com.github.n1try.popularmovies.model.Movie;
+import com.github.n1try.popularmovies.utils.Utils;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -24,13 +25,21 @@ public class TmdbMovieDeserializer implements JsonDeserializer<Movie> {
                 .posterPath(TmdbApiService.API_IMAGE_BASE_URL + entry.get("poster_path").getAsString())
                 .backdropPath(TmdbApiService.API_IMAGE_BASE_URL + entry.get("backdrop_path").getAsString())
                 .adult(entry.get("adult").getAsBoolean())
-                .releaseDate(TmdbApiService.parseDate((entry.get("release_date").getAsString())))
+                .releaseDate(Utils.parseDate((entry.get("release_date").getAsString())))
                 .overview(entry.get("overview").getAsString())
                 .genres(new ArrayList<Genre>())
                 .build();
 
         for (JsonElement idElement : entry.get("genre_ids").getAsJsonArray()) {
-            movie.getGenres().add(Genre.builder().id(idElement.getAsDouble()).build());
+            if (idElement.isJsonObject()) {
+                movie.getGenres().add(Genre.builder()
+                        .id(idElement.getAsJsonObject().get("id").getAsDouble())
+                        .name(idElement.getAsJsonObject().get("name").getAsString())
+                        .build());
+            }
+            else {
+                movie.getGenres().add(Genre.builder().id(idElement.getAsDouble()).build());
+            }
         }
 
         return movie;

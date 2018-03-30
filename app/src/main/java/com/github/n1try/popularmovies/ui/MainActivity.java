@@ -3,6 +3,7 @@ package com.github.n1try.popularmovies.ui;
 import android.app.LoaderManager;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
+import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -10,6 +11,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
 import com.github.n1try.popularmovies.R;
@@ -23,7 +26,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Movie>> {
-    private static final String KEY_SORT_ORDER = "sort_order";
+    public static final String KEY_SORT_ORDER = "sort_order";
+    public static final String KEY_MOVIE_ID = "movie_id";
     private static final int LOADER_ID = 0;
 
     @BindView(R.id.main_movies_gv)
@@ -46,6 +50,16 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         Bundle bundle = new Bundle();
         bundle.putString(KEY_SORT_ORDER, order.name());
         getLoaderManager().initLoader(LOADER_ID, bundle, this);
+
+        moviesGv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Movie movieItem = (Movie) adapterView.getAdapter().getItem(i);
+                Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
+                intent.putExtra(KEY_MOVIE_ID, movieItem);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override

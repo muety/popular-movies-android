@@ -5,21 +5,15 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.github.n1try.popularmovies.BuildConfig;
-import com.github.n1try.popularmovies.deserialization.TmdbGenresResultDeserializer;
-import com.github.n1try.popularmovies.deserialization.TmdbMovieDeserializer;
-import com.github.n1try.popularmovies.deserialization.TmdbMoviesResultDeserializer;
 import com.github.n1try.popularmovies.model.Genre;
 import com.github.n1try.popularmovies.model.Movie;
 import com.github.n1try.popularmovies.model.TmdbGenresResult;
 import com.github.n1try.popularmovies.model.TmdbMoviesResult;
+import com.github.n1try.popularmovies.serialization.GsonHolder;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,13 +45,7 @@ public class TmdbApiService {
         httpClient = new OkHttpClient.Builder()
                 .cache(new Cache(context.getCacheDir(), 1024 * 1014 * 10))
                 .build();
-
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(Movie.class, new TmdbMovieDeserializer());
-        gsonBuilder.registerTypeAdapter(TmdbMoviesResult.class, new TmdbMoviesResultDeserializer());
-        gsonBuilder.registerTypeAdapter(TmdbGenresResult.class, new TmdbGenresResultDeserializer());
-        gson = gsonBuilder.create();
-
+        gson = GsonHolder.getInstance().getGson();
         genres = getGenreMap();
     }
 
@@ -116,12 +104,4 @@ public class TmdbApiService {
             return new ArrayList<>();
     }
 
-    public static Date parseDate(String dateString) {
-        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd");
-        try {
-            return parser.parse(dateString);
-        } catch (ParseException e) {
-            return null;
-        }
-    }
 }

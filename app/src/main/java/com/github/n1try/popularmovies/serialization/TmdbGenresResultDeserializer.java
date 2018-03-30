@@ -1,4 +1,4 @@
-package com.github.n1try.popularmovies.deserialization;
+package com.github.n1try.popularmovies.serialization;
 
 import com.github.n1try.popularmovies.model.Genre;
 import com.github.n1try.popularmovies.model.TmdbGenresResult;

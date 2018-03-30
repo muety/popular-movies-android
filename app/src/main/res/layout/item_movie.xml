@@ -6,7 +6,7 @@
     android:orientation="vertical">
 
     <ImageView
-        android:id="@+id/main_movie_cover_iv"
+        android:id="@+id/details_movie_cover_iv"
         android:layout_width="185dp"
         android:layout_height="270dp"
         android:layout_gravity="center"

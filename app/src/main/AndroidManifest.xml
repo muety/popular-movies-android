@@ -19,6 +19,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.DetailsActivity"
+            android:parentActivityName="com.github.n1try.popularmovies.ui.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.github.n1try.popularmovies.ui.MainActivity" />
+
+        </activity>
     </application>
 
 </manifest>

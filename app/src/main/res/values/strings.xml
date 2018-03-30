@@ -1,8 +1,14 @@
 <resources>
+    <string name="display_date_format">EEE, MMM d, yyyy</string>
     <string name="app_name">popular-movies-android</string>
     <string name="title_popular_movies">Popular Movies</string>
     <string name="title_top_rated_movies">Top Rated Movies</string>
     <string name="sort_order">Sort order</string>
     <string name="most_popular">Most popular</string>
     <string name="top_rated">Top rated</string>
+    <string name="label_summary">Summary</string>
+    <string name="label_genres">Genres</string>
+    <string name="label_release_date">Release Date</string>
+    <string name="label_rating">Rating</string>
+    <string name="label_popularity">Popularity</string>
 </resources>
