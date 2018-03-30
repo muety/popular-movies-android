@@ -3,6 +3,7 @@ package com.github.n1try.popularmovies.ui;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,8 @@ public class MovieItemAdapter extends ArrayAdapter<Movie> {
     TextView movieTitleIv;
     @BindView(R.id.main_movie_rating_tv)
     TextView movieRatingTv;
+    @BindView(R.id.main_movie_genre_tv)
+    TextView movieGenresTv;
 
     public MovieItemAdapter(@NonNull Context context, @NonNull List<Movie> movies) {
         super(context, 0, movies);
@@ -45,6 +48,7 @@ public class MovieItemAdapter extends ArrayAdapter<Movie> {
         Picasso.with(getContext()).load(movie.getPosterPath()).into(movieCoverIv);
         movieTitleIv.setText(movie.getTitle());
         movieRatingTv.setText(String.valueOf(movie.getVoteAverage()));
+        movieGenresTv.setText(TextUtils.join(", ", movie.getGenres()));
 
         return convertView;
     }

@@ -14,4 +14,9 @@ import lombok.Setter;
 public class Genre {
     private double id;
     private String name;
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
