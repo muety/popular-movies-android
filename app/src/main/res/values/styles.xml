@@ -8,9 +8,15 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="GiantText" parent="TextAppearance.AppCompat">
-        <item name="android:textSize">22sp</item>
+    <style name="HeadingText" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">28sp</item>
         <item name="android:textColor">@color/colorTextDark</item>
+    </style>
+
+    <style name="FigureText" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@color/colorTextMedium</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="SmallLabelText" parent="TextAppearance.AppCompat">

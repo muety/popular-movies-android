@@ -41,6 +41,8 @@ public class DetailsFragment extends Fragment {
     TextView movieRatingTv;
     @BindView(R.id.details_popularity_tv)
     TextView moviePopularityTv;
+    @BindView(R.id.details_title_tv)
+    TextView movieTitleTv;
 
     public static DetailsFragment newInstance(Movie movie) {
         DetailsFragment fragment = new DetailsFragment();
@@ -62,7 +64,7 @@ public class DetailsFragment extends Fragment {
         movieSummaryTv.setText(movie.getOverview());
         movieRatingTv.setText(String.valueOf(movie.getVoteAverage()));
         moviePopularityTv.setText(String.valueOf((int) Math.round(movie.getPopularity())));
-        getActivity().setTitle(movie.getTitle());
+        movieTitleTv.setText(movie.getTitle());
         Picasso.with(getContext()).load(movie.getBackdropPath()).into(movieCoverIv, new Callback() {
             @Override
             public void onSuccess() {

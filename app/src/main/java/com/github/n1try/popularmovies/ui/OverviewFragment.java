@@ -13,6 +13,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -42,6 +43,10 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
         public void onMovieSelected(Movie movie);
     }
 
+    public interface OnDataLoadedListener {
+        public void onDataLoaded();
+    }
+
     private static final int LOADER_ID = 0;
 
     @BindView(R.id.main_movies_gv)
@@ -57,7 +62,8 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
     private MovieSortOrder currentOrder;
     private MovieSortOrder currentLoaderState;
 
-    private OnMovieSelectedListener movieSelectedListener;
+    private OnMovieSelectedListener mMovieSelectedListener;
+    private OnDataLoadedListener mDataLoadedListener;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,7 +74,17 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        movieSelectedListener = (OnMovieSelectedListener) context;
+        try {
+            mMovieSelectedListener = (OnMovieSelectedListener) context;
+        } catch (ClassCastException e) {
+            Log.w(getClass().getSimpleName(), e.getMessage());
+        }
+
+        try {
+            mDataLoadedListener = (OnDataLoadedListener) context;
+        } catch (ClassCastException e) {
+            Log.w(getClass().getSimpleName(), e.getMessage());
+        }
     }
 
     @Nullable
@@ -87,7 +103,8 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Movie movieItem = (Movie) adapterView.getAdapter().getItem(i);
-                movieSelectedListener.onMovieSelected(movieItem);
+                if (mMovieSelectedListener != null)
+                    mMovieSelectedListener.onMovieSelected(movieItem);
             }
         });
 
@@ -136,17 +153,18 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
     public void onLoadFinished(@NonNull Loader<List<Movie>> loader, List<Movie> movies) {
         loadingDialog.dismiss();
 
+        if ((movies.isEmpty()) && !AndroidUtils.isNetworkAvailable(getContext())) {
+            moviesContainer.setVisibility(View.GONE);
+            offlineContainer.setVisibility(View.VISIBLE);
+        } else {
+            moviesContainer.setVisibility(View.VISIBLE);
+            offlineContainer.setVisibility(View.GONE);
+        }
+
         if (currentOrder != currentLoaderState) {
             // Initial load
-            if (movies.isEmpty() && !AndroidUtils.isNetworkAvailable(getContext())) {
-                moviesContainer.setVisibility(View.GONE);
-                offlineContainer.setVisibility(View.VISIBLE);
-            } else {
-                moviesContainer.setVisibility(View.VISIBLE);
-                offlineContainer.setVisibility(View.GONE);
-                movieAdapter = new MovieItemAdapter(getActivity().getApplicationContext(), movies);
-                moviesContainer.setAdapter(movieAdapter);
-            }
+            movieAdapter = new MovieItemAdapter(getActivity().getApplicationContext(), movies);
+            moviesContainer.setAdapter(movieAdapter);
         } else {
             // Load caused by infinite scrolling
             movieAdapter.addAll(movies);
@@ -154,6 +172,7 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
         }
 
         currentLoaderState = currentOrder;
+        if (mDataLoadedListener != null) mDataLoadedListener.onDataLoaded();
     }
 
     @Override
@@ -194,8 +213,16 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
         });
     }
 
+    public void selectMovieByIndex(int i) {
+        if (movieAdapter.getCount() > i - 1) {
+            if (mMovieSelectedListener != null)
+                mMovieSelectedListener.onMovieSelected(movieAdapter.getItem(i));
+        }
+    }
+
     private void updateTitle(MovieSortOrder currentSortOrder) {
-        if (currentSortOrder == MovieSortOrder.TOP_RATED) getActivity().setTitle(R.string.title_top_rated_movies);
+        if (currentSortOrder == MovieSortOrder.TOP_RATED)
+            getActivity().setTitle(R.string.title_top_rated_movies);
         else getActivity().setTitle(R.string.title_popular_movies);
     }
 

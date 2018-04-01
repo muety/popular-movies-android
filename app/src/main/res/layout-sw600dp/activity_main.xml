@@ -6,7 +6,7 @@
 
     <FrameLayout
         android:id="@+id/main_overview_container"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1">
 
@@ -14,9 +14,9 @@
 
     <FrameLayout
         android:id="@+id/main_details_container"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="2">
+        android:layout_weight="1">
 
     </FrameLayout>
 

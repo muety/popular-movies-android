@@ -19,6 +19,7 @@ public class DetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_details);
 
         Movie movie = getIntent().getParcelableExtra(MainActivity.KEY_MOVIE_ID);
+        setTitle(movie.getTitle());
         fragmentManager = getSupportFragmentManager();
 
         Fragment fragment = DetailsFragment.newInstance(movie);
