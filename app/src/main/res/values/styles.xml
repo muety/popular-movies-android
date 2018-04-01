@@ -23,5 +23,8 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <style name="NormalSubtleText" parent="NormalText">
+        <item name="android:textColor">@color/colorTextMedium</item>
+    </style>
 
 </resources>

@@ -11,4 +11,7 @@
     <string name="label_release_date">Release Date</string>
     <string name="label_rating">Rating</string>
     <string name="label_popularity">Popularity</string>
+    <string name="main_loading_title">Loading</string>
+    <string name="main_loading_text">Wait while movies are being fetched...</string>
+    <string name="offline_message">Could not fetch movies from the internet. Maybe a connection issue?</string>
 </resources>

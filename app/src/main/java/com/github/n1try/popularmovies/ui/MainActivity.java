@@ -3,28 +3,35 @@
     TODO: Infinite scroll
     TODO: Tablet layout
     TODO: Offline message
+    TODO: Default backdrop image
  */
 
 package com.github.n1try.popularmovies.ui;
 
 import android.app.LoaderManager;
+import android.app.ProgressDialog;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.GridView;
+import android.widget.ImageView;
 
 import com.github.n1try.popularmovies.R;
 import com.github.n1try.popularmovies.api.TmdbApiService;
 import com.github.n1try.popularmovies.model.Movie;
+import com.github.n1try.popularmovies.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,10 +45,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private static final int LOADER_ID = 0;
 
     @BindView(R.id.main_movies_gv)
-    GridView moviesGv;
+    AdapterView moviesContainer;
+    @BindView(R.id.main_offline_indicator_container)
+    ViewGroup offlineContainer;
+    @BindView(R.id.main_offline_indicator_iv)
+    ImageView offlineIndicatorIv;
 
     private MovieItemAdapter movieAdapter;
     private SharedPreferences prefs;
+    private ProgressDialog loadingDialog;
 
     enum MovieSortOrder {POPULAR, TOP_RATED}
 
@@ -53,12 +65,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         prefs = getPreferences(Context.MODE_PRIVATE);
         MovieSortOrder order = MovieSortOrder.valueOf(prefs.getString(KEY_SORT_ORDER, MovieSortOrder.POPULAR.name()));
+        updateTitle(order);
 
         Bundle bundle = new Bundle();
         bundle.putString(KEY_SORT_ORDER, order.name());
         getLoaderManager().initLoader(LOADER_ID, bundle, this);
 
-        moviesGv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        moviesContainer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Movie movieItem = (Movie) adapterView.getAdapter().getItem(i);
@@ -67,6 +80,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 startActivity(intent);
             }
         });
+
+        loadingDialog = new ProgressDialog(this);
+        loadingDialog.setTitle(getResources().getString(R.string.main_loading_title));
+        loadingDialog.setMessage(getResources().getString(R.string.main_loading_text));
+        loadingDialog.setCancelable(false);
+
+        Drawable mIcon = ContextCompat.getDrawable(this, R.drawable.ic_cloud_off_black_48dp);
+        mIcon.setColorFilter(ContextCompat.getColor(this, R.color.colorTextMedium), PorterDuff.Mode.SRC_IN);
+        offlineIndicatorIv.setImageDrawable(mIcon);
     }
 
     @Override
@@ -79,8 +101,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        MovieSortOrder order;
-        Bundle bundle;
+        MovieSortOrder order = null;
+        Bundle bundle = null;
 
         switch (id) {
             case R.id.action_sort_popular:
@@ -97,16 +119,16 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 bundle.putString(KEY_SORT_ORDER, order.name());
                 getLoaderManager().restartLoader(LOADER_ID, bundle, this);
                 return true;
-            default:
-                return super.onOptionsItemSelected(item);
         }
+
+        if (order != null) updateTitle(order);
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
     public Loader<List<Movie>> onCreateLoader(int i, Bundle bundle) {
         final MovieSortOrder order = MovieSortOrder.valueOf(bundle.getString(KEY_SORT_ORDER));
-        if (order == MovieSortOrder.TOP_RATED) setTitle(R.string.title_top_rated_movies);
-        else setTitle(R.string.title_popular_movies);
 
         return new AsyncTaskLoader<List<Movie>>(getApplicationContext()) {
             @Override
@@ -123,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             @Override
             protected void onStartLoading() {
+                loadingDialog.show();
                 forceLoad();
             }
         };
@@ -130,12 +153,25 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader<List<Movie>> loader, List<Movie> movies) {
-        movieAdapter = new MovieItemAdapter(getApplicationContext(), movies);
-        moviesGv.setAdapter(movieAdapter);
+        loadingDialog.dismiss();
+        if (movies.isEmpty() && !AndroidUtils.isNetworkAvailable(this)) {
+            moviesContainer.setVisibility(View.GONE);
+            offlineContainer.setVisibility(View.VISIBLE);
+        } else {
+            moviesContainer.setVisibility(View.VISIBLE);
+            offlineContainer.setVisibility(View.GONE);
+            movieAdapter = new MovieItemAdapter(getApplicationContext(), movies);
+            moviesContainer.setAdapter(movieAdapter);
+        }
     }
 
     @Override
     public void onLoaderReset(Loader<List<Movie>> loader) {
         movieAdapter.clear();
+    }
+
+    private void updateTitle(MovieSortOrder currentSortOrder) {
+        if (currentSortOrder == MovieSortOrder.TOP_RATED) setTitle(R.string.title_top_rated_movies);
+        else setTitle(R.string.title_popular_movies);
     }
 }
