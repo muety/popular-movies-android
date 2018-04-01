@@ -3,14 +3,14 @@
 My implementation of Project 1 from the [Udacity Android Developer Nanodegree Program](https://classroom.udacity.com/nanodegrees/nd801), which I am able to participate in thanks to a scholarship by Udacity and Google 🤗.
 
 ## Screenshots
-### Smarthone
+### Smartphone
 ![](https://anchr.io/i/cTriO.png) ![](https://anchr.io/i/zZsBE.png)
 
 ### Tablet
 ![](https://anchr.io/i/iFsx9.png)
 
 ## How tun run?
-1. Enable annotation preprocessing in Android Studio.
+1. Enable annotation processing in Android Studio.
     1. Open *Preferences* (from the main screen - see screenshot below)
     2. Navigate to *Build, Execution, Deployment --> Compiler --> Annotation Processors*
     3. Check *Enable annotation processing*
