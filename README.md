@@ -5,7 +5,7 @@
 My implementation of Project 1 from the [Udacity Android Developer Nanodegree Program](https://classroom.udacity.com/nanodegrees/nd801), which I am able to participate in thanks to a scholarship by Udacity and Google 🤗.
 
 ## Screenshots
-### Smarthone
+### Smartphone
 ![](https://anchr.io/i/cTriO.png) ![](https://anchr.io/i/zZsBE.png)
 
 ### Tablet
