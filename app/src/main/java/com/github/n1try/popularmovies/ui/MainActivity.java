@@ -1,5 +1,5 @@
 /*
-    TODO: JavaDocs
+ * Copyright (C) 2018 Ferdinand Mütsch
  */
 
 package com.github.n1try.popularmovies.ui;

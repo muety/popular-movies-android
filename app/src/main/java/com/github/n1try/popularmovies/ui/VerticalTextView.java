@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2018 Ferdinand Mütsch
+ */
+
 package com.github.n1try.popularmovies.ui;
 
 import android.content.Context;
@@ -7,19 +11,18 @@ import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.Gravity;
 
+/**
+ * A TextView implementation where the text is rotated by 90 degrees.
+ * Inspired by https://stackoverflow.com/a/40512310/3112139
+ */
 public class VerticalTextView extends AppCompatTextView {
     final boolean topDown;
 
-    public VerticalTextView(Context context,
-                            AttributeSet attrs) {
+    public VerticalTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
         final int gravity = getGravity();
-        if (Gravity.isVertical(gravity)
-                && (gravity & Gravity.VERTICAL_GRAVITY_MASK)
-                == Gravity.BOTTOM) {
-            setGravity(
-                    (gravity & Gravity.HORIZONTAL_GRAVITY_MASK)
-                            | Gravity.TOP);
+        if (Gravity.isVertical(gravity) && (gravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.BOTTOM) {
+            setGravity((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) | Gravity.TOP);
             topDown = false;
         } else {
             topDown = true;
@@ -27,12 +30,9 @@ public class VerticalTextView extends AppCompatTextView {
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec,
-                             int heightMeasureSpec) {
-        super.onMeasure(heightMeasureSpec,
-                widthMeasureSpec);
-        setMeasuredDimension(getMeasuredHeight(),
-                getMeasuredWidth());
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(heightMeasureSpec, widthMeasureSpec);
+        setMeasuredDimension(getMeasuredHeight(), getMeasuredWidth());
     }
 
     @Override
@@ -51,8 +51,7 @@ public class VerticalTextView extends AppCompatTextView {
             canvas.rotate(-90);
         }
 
-        canvas.translate(getCompoundPaddingLeft(),
-                getExtendedPaddingTop());
+        canvas.translate(getCompoundPaddingLeft(), getExtendedPaddingTop());
 
         getLayout().draw(canvas);
         canvas.restore();

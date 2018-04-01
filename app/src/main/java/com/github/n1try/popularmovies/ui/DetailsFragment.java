@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2018 Ferdinand Mütsch
+ */
+
 package com.github.n1try.popularmovies.ui;
 
 import android.graphics.PorterDuff;
@@ -16,10 +20,9 @@ import android.widget.TextView;
 
 import com.github.n1try.popularmovies.R;
 import com.github.n1try.popularmovies.model.Movie;
+import com.github.n1try.popularmovies.utils.Utils;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-
-import java.text.SimpleDateFormat;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -58,7 +61,7 @@ public class DetailsFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         Movie movie = getArguments().getParcelable(MainActivity.KEY_MOVIE_ID);
-        String dateString = new SimpleDateFormat(getResources().getString(R.string.display_date_format)).format(movie.getReleaseDate());
+        String dateString = Utils.formatDate(movie.getReleaseDate(), getResources().getString(R.string.display_date_format));
         movieGenresTv.setText(TextUtils.join(", ", movie.getGenres()));
         movieReleaseDateTv.setText(dateString);
         movieSummaryTv.setText(movie.getOverview());

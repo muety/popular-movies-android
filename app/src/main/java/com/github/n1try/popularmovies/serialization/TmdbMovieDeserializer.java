@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2018 Ferdinand Mütsch
+ */
+
 package com.github.n1try.popularmovies.serialization;
 
 import com.github.n1try.popularmovies.api.TmdbApiService;
@@ -25,7 +29,7 @@ public class TmdbMovieDeserializer implements JsonDeserializer<Movie> {
                 .posterPath(TmdbApiService.API_IMAGE_SM_BASE_URL + entry.get("poster_path").getAsString())
                 .backdropPath(TmdbApiService.API_IMAGE_LG_BASE_URL + entry.get("backdrop_path").getAsString())
                 .adult(entry.get("adult").getAsBoolean())
-                .releaseDate(Utils.parseDate((entry.get("release_date").getAsString())))
+                .releaseDate(Utils.parseDate((entry.get("release_date").getAsString()), "yyyy-MM-dd"))
                 .overview(entry.get("overview").getAsString())
                 .genres(new ArrayList<Genre>())
                 .build();

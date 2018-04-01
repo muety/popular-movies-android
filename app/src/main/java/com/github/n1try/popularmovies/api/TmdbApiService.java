@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2018 Ferdinand Mütsch
+ */
+
 package com.github.n1try.popularmovies.api;
 
 import android.content.Context;
@@ -50,6 +54,9 @@ public class TmdbApiService {
         genres = getGenreMap();
     }
 
+    /**
+     * Fetches a list of all available movie genres from TMDB.
+     */
     public List<Genre> getGenres() {
         Uri uri = Uri.parse(API_BASE_URL + "/genre/movie/list").buildUpon().appendQueryParameter("api_key", API_KEY).build();
         Request request = new Request.Builder().url(uri.toString()).build();
@@ -68,6 +75,9 @@ public class TmdbApiService {
         return new ArrayList<>();
     }
 
+    /**
+     * Fetches all available movie genres from TMBD as a map of their id's to the respective Genre objects for faster lookup.
+     */
     public Map<Double, Genre> getGenreMap() {
         Map genreMap = new HashMap();
         for (Genre g : getGenres()) {
@@ -76,10 +86,18 @@ public class TmdbApiService {
         return genreMap;
     }
 
+    /**
+     * Fetches a list of popular movies from TMDB.
+     * @param page Page number to fetch (one page consists of 20 items)
+     */
     public List<Movie> getPopularMovies(int page) {
         return fetchMovieList(Uri.parse(API_BASE_URL + "/movie/popular").buildUpon().appendQueryParameter("page", String.valueOf(page)).build());
     }
 
+    /**
+     * Fetches a list of highest rated movies from TMDB.
+     * @param page Page number to fetch (one page consists of 20 items)
+     */
     public List<Movie> getTopRatedMovies(int page) {
         return fetchMovieList(Uri.parse(API_BASE_URL + "/movie/top_rated").buildUpon().appendQueryParameter("page", String.valueOf(page)).build());
     }

@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2018 Ferdinand Mütsch
+ */
+
 package com.github.n1try.popularmovies.model;
 
 import android.os.Parcel;

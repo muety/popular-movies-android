@@ -1,9 +1,15 @@
+/*
+ * Copyright (C) 2018 Ferdinand Mütsch
+ */
+
 package com.github.n1try.popularmovies.ui;
 
 import android.widget.AbsListView;
 
-// https://github.com/codepath/android_guides/wiki/Endless-Scrolling-with-AdapterViews-and-RecyclerView
-
+/**
+ * A scroll listener to be used for ListViews and GridViews that enables for infinite scrolling (loading more data on demand).
+ * Inspired by https://github.com/codepath/android_guides/wiki/Endless-Scrolling-with-AdapterViews-and-RecyclerView
+ */
 public abstract class EndlessScrollListener implements AbsListView.OnScrollListener {
     private int visibleThreshold = 2;
     private int currentPage = 0;

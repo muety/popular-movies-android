@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2018 Ferdinand Mütsch
+ */
+
 package com.github.n1try.popularmovies.ui;
 
 import android.app.ProgressDialog;
@@ -213,6 +217,11 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
         });
     }
 
+    /**
+     * Triggers OnMovieSelectedListener::onMovieSelected with the Movie object contained
+     * at position i of the current adapter's items list. Does nothing, if no item is present at position i.
+     * @param i Position of Movie to select
+     */
     public void selectMovieByIndex(int i) {
         if (movieAdapter.getCount() > i - 1) {
             if (mMovieSelectedListener != null)

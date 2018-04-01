@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2018 Ferdinand Mütsch
+ */
+
 package com.github.n1try.popularmovies.serialization;
 
 import com.github.n1try.popularmovies.model.Genre;
@@ -22,7 +26,7 @@ public class TmdbMovieSerializer implements JsonSerializer<Movie> {
         el.addProperty("poster_path", src.getPosterPath().substring(src.getPosterPath().lastIndexOf("/")));
         el.addProperty("backdrop_path", src.getBackdropPath().substring(src.getBackdropPath().lastIndexOf("/")));
         el.addProperty("adult", src.isAdult());
-        el.addProperty("release_date", Utils.dumpDate(src.getReleaseDate()));
+        el.addProperty("release_date", Utils.formatDate(src.getReleaseDate(), "yyyy-MM-dd"));
         el.addProperty("overview", src.getOverview());
 
         JsonArray genres = new JsonArray();
