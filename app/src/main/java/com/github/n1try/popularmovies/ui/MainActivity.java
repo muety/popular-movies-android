@@ -26,6 +26,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ImageView;
 
 import com.github.n1try.popularmovies.R;
@@ -40,12 +41,16 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Movie>> {
+    enum MovieSortOrder {POPULAR, TOP_RATED}
+
     public static final String KEY_SORT_ORDER = "sort_order";
+    public static final String KEY_PAGE = "page";
+    public static final String KEY_HIDE_LOADING_DIALOG = "hide_loading_dialog";
     public static final String KEY_MOVIE_ID = "movie_id";
     private static final int LOADER_ID = 0;
 
     @BindView(R.id.main_movies_gv)
-    AdapterView moviesContainer;
+    GridView moviesContainer;
     @BindView(R.id.main_offline_indicator_container)
     ViewGroup offlineContainer;
     @BindView(R.id.main_offline_indicator_iv)
@@ -54,8 +59,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private MovieItemAdapter movieAdapter;
     private SharedPreferences prefs;
     private ProgressDialog loadingDialog;
-
-    enum MovieSortOrder {POPULAR, TOP_RATED}
+    private MovieSortOrder currentOrder;
+    private MovieSortOrder currentLoaderState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,12 +69,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         ButterKnife.bind(this);
 
         prefs = getPreferences(Context.MODE_PRIVATE);
-        MovieSortOrder order = MovieSortOrder.valueOf(prefs.getString(KEY_SORT_ORDER, MovieSortOrder.POPULAR.name()));
-        updateTitle(order);
+        currentOrder = MovieSortOrder.valueOf(prefs.getString(KEY_SORT_ORDER, MovieSortOrder.POPULAR.name()));
+        updateTitle(currentOrder);
 
-        Bundle bundle = new Bundle();
-        bundle.putString(KEY_SORT_ORDER, order.name());
-        getLoaderManager().initLoader(LOADER_ID, bundle, this);
+        getLoaderManager().initLoader(LOADER_ID, createLoaderBundle(), this);
 
         moviesContainer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -80,6 +83,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 startActivity(intent);
             }
         });
+
+        resetScrollListener();
 
         loadingDialog = new ProgressDialog(this);
         loadingDialog.setTitle(getResources().getString(R.string.main_loading_title));
@@ -101,27 +106,23 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        MovieSortOrder order = null;
-        Bundle bundle = null;
 
         switch (id) {
             case R.id.action_sort_popular:
-                order = MovieSortOrder.POPULAR;
-                prefs.edit().putString(KEY_SORT_ORDER, order.name()).apply();
-                bundle = new Bundle();
-                bundle.putString(KEY_SORT_ORDER, order.name());
-                getLoaderManager().restartLoader(LOADER_ID, bundle, this);
+                currentOrder = MovieSortOrder.POPULAR;
+                prefs.edit().putString(KEY_SORT_ORDER, currentOrder.name()).apply();
+                getLoaderManager().restartLoader(LOADER_ID, createLoaderBundle(), this);
+                resetScrollListener();
                 return true;
             case R.id.action_sort_rating:
-                order = MovieSortOrder.TOP_RATED;
-                prefs.edit().putString(KEY_SORT_ORDER, order.name()).apply();
-                bundle = new Bundle();
-                bundle.putString(KEY_SORT_ORDER, order.name());
-                getLoaderManager().restartLoader(LOADER_ID, bundle, this);
+                currentOrder = MovieSortOrder.TOP_RATED;
+                prefs.edit().putString(KEY_SORT_ORDER, currentOrder.name()).apply();
+                getLoaderManager().restartLoader(LOADER_ID, createLoaderBundle(), this);
+                resetScrollListener();
                 return true;
         }
 
-        if (order != null) updateTitle(order);
+        if (currentOrder != null) updateTitle(currentOrder);
 
         return super.onOptionsItemSelected(item);
     }
@@ -129,15 +130,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public Loader<List<Movie>> onCreateLoader(int i, Bundle bundle) {
         final MovieSortOrder order = MovieSortOrder.valueOf(bundle.getString(KEY_SORT_ORDER));
+        final int page = bundle.getInt(KEY_PAGE, 1);
+        final boolean hideLoadingDialog = bundle.getBoolean(KEY_HIDE_LOADING_DIALOG, false);
 
         return new AsyncTaskLoader<List<Movie>>(getApplicationContext()) {
             @Override
             public List<Movie> loadInBackground() {
                 switch (order) {
                     case POPULAR:
-                        return TmdbApiService.getInstance(getApplicationContext()).getPopularMovies();
+                        return TmdbApiService.getInstance(getApplicationContext()).getPopularMovies(page);
                     case TOP_RATED:
-                        return TmdbApiService.getInstance(getApplicationContext()).getTopRatedMovies();
+                        return TmdbApiService.getInstance(getApplicationContext()).getTopRatedMovies(page);
                     default:
                         return new ArrayList<>();
                 }
@@ -145,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             @Override
             protected void onStartLoading() {
-                loadingDialog.show();
+                if (!hideLoadingDialog) loadingDialog.show();
                 forceLoad();
             }
         };
@@ -154,15 +157,25 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onLoadFinished(Loader<List<Movie>> loader, List<Movie> movies) {
         loadingDialog.dismiss();
-        if (movies.isEmpty() && !AndroidUtils.isNetworkAvailable(this)) {
-            moviesContainer.setVisibility(View.GONE);
-            offlineContainer.setVisibility(View.VISIBLE);
+
+        if (currentOrder != currentLoaderState) {
+            // Initial load
+            if (movies.isEmpty() && !AndroidUtils.isNetworkAvailable(this)) {
+                moviesContainer.setVisibility(View.GONE);
+                offlineContainer.setVisibility(View.VISIBLE);
+            } else {
+                moviesContainer.setVisibility(View.VISIBLE);
+                offlineContainer.setVisibility(View.GONE);
+                movieAdapter = new MovieItemAdapter(getApplicationContext(), movies);
+                moviesContainer.setAdapter(movieAdapter);
+            }
         } else {
-            moviesContainer.setVisibility(View.VISIBLE);
-            offlineContainer.setVisibility(View.GONE);
-            movieAdapter = new MovieItemAdapter(getApplicationContext(), movies);
-            moviesContainer.setAdapter(movieAdapter);
+            // Load caused by infinite scrolling
+            movieAdapter.addAll(movies);
+            movieAdapter.notifyDataSetChanged();
         }
+
+        currentLoaderState = currentOrder;
     }
 
     @Override
@@ -173,5 +186,28 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private void updateTitle(MovieSortOrder currentSortOrder) {
         if (currentSortOrder == MovieSortOrder.TOP_RATED) setTitle(R.string.title_top_rated_movies);
         else setTitle(R.string.title_popular_movies);
+    }
+
+    private void resetScrollListener() {
+        moviesContainer.setOnScrollListener(new EndlessScrollListener() {
+            @Override
+            public boolean onLoadMore(int page, int totalItemsCount) {
+                getLoaderManager().restartLoader(LOADER_ID, createLoaderBundle(page, true), MainActivity.this);
+                return true;
+            }
+        });
+    }
+
+    private Bundle createLoaderBundle() {
+        Bundle bundle = new Bundle();
+        bundle.putString(KEY_SORT_ORDER, currentOrder.name());
+        return bundle;
+    }
+
+    private Bundle createLoaderBundle(int pageToLoad, boolean hideLoadingDialog) {
+        Bundle bundle = createLoaderBundle();
+        bundle.putInt(KEY_PAGE, pageToLoad);
+        bundle.putBoolean(KEY_HIDE_LOADING_DIALOG, hideLoadingDialog);
+        return bundle;
     }
 }

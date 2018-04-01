@@ -20,14 +20,27 @@ import com.github.n1try.popularmovies.utils.ImageUtils;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MovieItemAdapter extends ArrayAdapter<Movie> {
-    private int[] colorCache;
+    private List<Movie> movies;
+    private ArrayList<Integer> colorCache;
 
     public MovieItemAdapter(@NonNull Context context, @NonNull List<Movie> movies) {
         super(context, 0, movies);
-        colorCache = new int[movies.size()];
+        this.movies = movies;
+        colorCache = new ArrayList<>(movies.size());
+        colorCache.addAll(Collections.<Integer>nCopies(movies.size(), null));
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        int delta = movies.size() - colorCache.size();
+        if (delta <= 0) return;
+        colorCache.addAll(Collections.<Integer>nCopies(delta, null));
+        super.notifyDataSetChanged();
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -54,11 +67,11 @@ public class MovieItemAdapter extends ArrayAdapter<Movie> {
         Picasso.with(getContext()).load(movie.getPosterPath()).into(movieCoverIv, new Callback() {
             @Override
             public void onSuccess() {
-                if (colorCache[position] == 0) {
-                    colorCache[position] = ImageUtils.getAverageColor(((BitmapDrawable) movieCoverIv.getDrawable()).getBitmap());
+                if (colorCache.get(position) == null) {
+                    colorCache.set(position, ImageUtils.getAverageColor(((BitmapDrawable) movieCoverIv.getDrawable()).getBitmap()));
                 }
 
-                int color = colorCache[position];
+                int color = colorCache.get(position);
                 movieTextContainer.setBackgroundColor(color);
                 if (ImageUtils.getBrightness(color) <= 110) {
                     movieTitleTv.setTextColor(getContext().getResources().getColor(R.color.colorTextLight));

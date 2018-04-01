@@ -76,12 +76,12 @@ public class TmdbApiService {
         return genreMap;
     }
 
-    public List<Movie> getPopularMovies() {
-        return fetchMovieList(Uri.parse(API_BASE_URL + "/movie/popular"));
+    public List<Movie> getPopularMovies(int page) {
+        return fetchMovieList(Uri.parse(API_BASE_URL + "/movie/popular").buildUpon().appendQueryParameter("page", String.valueOf(page)).build());
     }
 
-    public List<Movie> getTopRatedMovies() {
-        return fetchMovieList(Uri.parse(API_BASE_URL + "/movie/top_rated"));
+    public List<Movie> getTopRatedMovies(int page) {
+        return fetchMovieList(Uri.parse(API_BASE_URL + "/movie/top_rated").buildUpon().appendQueryParameter("page", String.valueOf(page)).build());
     }
 
     private List<Movie> fetchMovieList(Uri uri) {
