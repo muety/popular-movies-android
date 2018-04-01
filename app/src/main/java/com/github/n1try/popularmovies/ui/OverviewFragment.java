@@ -144,7 +144,7 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
             } else {
                 moviesContainer.setVisibility(View.VISIBLE);
                 offlineContainer.setVisibility(View.GONE);
-                movieAdapter = new MovieItemAdapter(getContext(), movies);
+                movieAdapter = new MovieItemAdapter(getActivity().getApplicationContext(), movies);
                 moviesContainer.setAdapter(movieAdapter);
             }
         } else {
@@ -158,7 +158,6 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onLoaderReset(@NonNull Loader<List<Movie>> loader) {
-        movieAdapter.clear();
     }
 
     @Override

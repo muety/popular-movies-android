@@ -38,9 +38,10 @@ public class MovieItemAdapter extends ArrayAdapter<Movie> {
     @Override
     public void notifyDataSetChanged() {
         int delta = movies.size() - colorCache.size();
-        if (delta <= 0) return;
-        colorCache.addAll(Collections.<Integer>nCopies(delta, null));
-        super.notifyDataSetChanged();
+        if (delta > 0) {
+            colorCache.addAll(Collections.<Integer>nCopies(delta, null));
+            super.notifyDataSetChanged();
+        }
     }
 
     @SuppressLint("StaticFieldLeak")
