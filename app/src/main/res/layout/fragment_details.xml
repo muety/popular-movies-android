@@ -209,7 +209,7 @@
                 android:text="@string/label_trailers"
                 android:visibility="gone" />
 
-            <ListView
+            <com.github.n1try.popularmovies.ui.NonScrollListView
                 android:id="@+id/details_trailers_lv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -227,7 +227,7 @@
                 android:text="@string/label_reviews"
                 android:visibility="gone" />
 
-            <ListView
+            <com.github.n1try.popularmovies.ui.NonScrollListView
                 android:id="@+id/details_reviews_lv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

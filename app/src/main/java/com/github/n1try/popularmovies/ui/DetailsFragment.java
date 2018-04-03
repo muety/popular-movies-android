@@ -179,7 +179,6 @@ public class DetailsFragment extends Fragment {
                 movie.setTrailers(trailers);
                 trailerAdapter = new MovieTrailerItemAdapter(getContext(), trailers);
                 trailersLv.setAdapter(trailerAdapter);
-                AndroidUtils.setListViewHeightBasedOnChildren(trailersLv);
                 trailersLv.setVisibility(View.VISIBLE);
                 trailersLabelTv.setVisibility(View.VISIBLE);
             } else {
@@ -222,7 +221,6 @@ public class DetailsFragment extends Fragment {
                 movie.setReviews(reviews);
                 reviewAdapter = new MovieReviewItemAdapter(getContext(), reviews);
                 reviewsLv.setAdapter(reviewAdapter);
-                AndroidUtils.setListViewHeightBasedOnChildren(reviewsLv);
                 reviewsLv.setVisibility(View.VISIBLE);
                 reviewsLabelTv.setVisibility(View.VISIBLE);
             } else {
