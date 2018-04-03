@@ -6,6 +6,7 @@ package com.github.n1try.popularmovies.api;
 
 import android.content.Context;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.github.n1try.popularmovies.BuildConfig;
@@ -66,6 +67,11 @@ public class TmdbApiService {
             if (!response.isSuccessful()) throw new IOException(response.message());
             ResponseBody body = response.body();
             List<MovieTrailer> trailers = gson.fromJson(body.string(), TmdbMovieVideosResult.class).getResults();
+            for (MovieTrailer t : trailers) {
+                if (!TextUtils.equals(t.getSite().toLowerCase(), "YouTube".toLowerCase())) {
+                    trailers.remove(t);
+                }
+            }
             body.close();
             return trailers;
         } catch (IOException e) {

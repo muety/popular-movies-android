@@ -99,7 +99,6 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
 
         prefs = getActivity().getPreferences(Context.MODE_PRIVATE);
         currentOrder = MovieSortOrder.valueOf(prefs.getString(KEY_SORT_ORDER, MovieSortOrder.POPULAR.name()));
-        updateTitle(currentOrder);
 
         getLoaderManager().initLoader(MOVIE_LIST_LOADER_ID, createLoaderBundle(), this);
 
@@ -202,8 +201,6 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
                 return true;
         }
 
-        if (currentOrder != null) updateTitle(currentOrder);
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -229,10 +226,8 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
         }
     }
 
-    private void updateTitle(MovieSortOrder currentSortOrder) {
-        if (currentSortOrder == MovieSortOrder.TOP_RATED)
-            getActivity().setTitle(R.string.title_top_rated_movies);
-        else getActivity().setTitle(R.string.title_popular_movies);
+    public MovieSortOrder getSortOrder() {
+        return currentOrder;
     }
 
     private Bundle createLoaderBundle() {

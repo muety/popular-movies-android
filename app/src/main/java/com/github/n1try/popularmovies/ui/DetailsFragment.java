@@ -93,6 +93,7 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
         movieGenresTv.setText(TextUtils.join(", ", movie.getGenres()));
         movieReleaseDateTv.setText(dateString);
         movieSummaryTv.setText(movie.getOverview());
+        movieSummaryTv.append(movie.getOverview());
         movieRatingTv.setText(String.valueOf(movie.getVoteAverage()));
         moviePopularityTv.setText(String.valueOf((int) Math.round(movie.getPopularity())));
         movieTitleTv.setText(movie.getTitle());
@@ -165,6 +166,7 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
             movie.setTrailers(trailers);
             trailerAdapter = new MovieTrailerItemAdapter(getContext(), trailers);
             trailersLv.setAdapter(trailerAdapter);
+            AndroidUtils.setListViewHeightBasedOnChildren(trailersLv);
             trailersLv.setVisibility(View.VISIBLE);
             trailersLabel.setVisibility(View.VISIBLE);
         } else {

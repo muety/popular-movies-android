@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 
 import com.github.n1try.popularmovies.R;
 import com.github.n1try.popularmovies.model.Movie;
+import com.github.n1try.popularmovies.model.MovieSortOrder;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements OverviewFragment.
 
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.main_overview_container, overviewFragment).commit();
+
+        updateTitle();
     }
 
     @Override
@@ -71,6 +74,15 @@ public class MainActivity extends AppCompatActivity implements OverviewFragment.
         if (isTabletLayout() && activeMovie == null) {
             overviewFragment.selectMovieByIndex(0);
         }
+
+        updateTitle();
+    }
+
+    private void updateTitle() {
+        if (overviewFragment == null) return;
+        if (overviewFragment.getSortOrder() == MovieSortOrder.TOP_RATED)
+            setTitle(R.string.title_top_rated_movies);
+        else setTitle(R.string.title_popular_movies);
     }
 
     private boolean isTabletLayout() {
