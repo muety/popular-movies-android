@@ -13,6 +13,6 @@ import lombok.Setter;
 @Builder
 public class MovieTrailer {
     private String id;
-    private String url;
-    private String title;
+    private String key;
+    private String name;
 }

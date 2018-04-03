@@ -34,7 +34,6 @@ public class TmdbApiService {
     public static final String API_BASE_URL = "https://api.themoviedb.org/3";
     public static final String API_IMAGE_SM_BASE_URL = "http://image.tmdb.org/t/p/w185";
     public static final String API_IMAGE_LG_BASE_URL = "http://image.tmdb.org/t/p/w780";
-    public static final String API_TRAILER_URL_PREFIX = "https://www.youtube.com/watch?v=";
     private static final String API_KEY = BuildConfig.TMDB_API_KEY;
     private static TmdbApiService ourInstance;
     private OkHttpClient httpClient;

@@ -10,24 +10,36 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.github.n1try.popularmovies.R;
+import com.github.n1try.popularmovies.api.TmdbApiService;
 import com.github.n1try.popularmovies.model.Movie;
+import com.github.n1try.popularmovies.model.MovieTrailer;
+import com.github.n1try.popularmovies.utils.AndroidUtils;
 import com.github.n1try.popularmovies.utils.Utils;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class DetailsFragment extends Fragment {
+import static com.github.n1try.popularmovies.ui.MainActivity.KEY_MOVIE_ID;
+
+public class DetailsFragment extends Fragment implements LoaderManager.LoaderCallbacks<List<MovieTrailer>> {
     @BindView(R.id.details_movie_cover_placeholder_container)
     ViewGroup movieCoverPlaceholderContainer;
     @BindView(R.id.details_movie_cover_placeholder_iv)
@@ -46,6 +58,15 @@ public class DetailsFragment extends Fragment {
     TextView moviePopularityTv;
     @BindView(R.id.details_title_tv)
     TextView movieTitleTv;
+    @BindView(R.id.details_trailers_label_tv)
+    TextView trailersLabel;
+    @BindView(R.id.details_trailers_lv)
+    ListView trailersLv;
+
+    private static final int TRAILER_LIST_LOADER_ID = 1;
+
+    private Movie movie;
+    private MovieTrailerItemAdapter trailerAdapter;
 
     public static DetailsFragment newInstance(Movie movie) {
         DetailsFragment fragment = new DetailsFragment();
@@ -56,11 +77,18 @@ public class DetailsFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        movie = getArguments().getParcelable(MainActivity.KEY_MOVIE_ID);
+        getLoaderManager().initLoader(TRAILER_LIST_LOADER_ID, createLoaderBundle(), this);
+    }
+
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_details, container, false);
         ButterKnife.bind(this, view);
 
-        Movie movie = getArguments().getParcelable(MainActivity.KEY_MOVIE_ID);
         String dateString = Utils.formatDate(movie.getReleaseDate(), getResources().getString(R.string.display_date_format));
         movieGenresTv.setText(TextUtils.join(", ", movie.getGenres()));
         movieReleaseDateTv.setText(dateString);
@@ -80,6 +108,14 @@ public class DetailsFragment extends Fragment {
             }
         });
 
+        trailersLv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                MovieTrailer trailer = (MovieTrailer) adapterView.getAdapter().getItem(position);
+                AndroidUtils.watchYoutubeVideo(getContext(), trailer.getKey());
+            }
+        });
+
         return view;
     }
 
@@ -94,5 +130,50 @@ public class DetailsFragment extends Fragment {
     private void hidePlaceholderImage() {
         movieCoverPlaceholderContainer.setVisibility(View.GONE);
         movieCoverIv.setVisibility(View.VISIBLE);
+    }
+
+    private Bundle createLoaderBundle() {
+        Bundle bundle = new Bundle();
+        bundle.putDouble(KEY_MOVIE_ID, movie.getId());
+        return bundle;
+    }
+
+    @NonNull
+    @Override
+    public Loader<List<MovieTrailer>> onCreateLoader(int id, final Bundle args) {
+        return new AsyncTaskLoader<List<MovieTrailer>>(getContext()) {
+            @Nullable
+            @Override
+            public List<MovieTrailer> loadInBackground() {
+                if (movie.getTrailers() == null) {
+                    return TmdbApiService.getInstance(getContext()).getVideosByMovie(args.getDouble(KEY_MOVIE_ID));
+                } else {
+                    return movie.getTrailers();
+                }
+            }
+
+            @Override
+            protected void onStartLoading() {
+                forceLoad();
+            }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<List<MovieTrailer>> loader, List<MovieTrailer> trailers) {
+        if (!trailers.isEmpty()) {
+            movie.setTrailers(trailers);
+            trailerAdapter = new MovieTrailerItemAdapter(getContext(), trailers);
+            trailersLv.setAdapter(trailerAdapter);
+            trailersLv.setVisibility(View.VISIBLE);
+            trailersLabel.setVisibility(View.VISIBLE);
+        } else {
+            trailersLv.setVisibility(View.GONE);
+            trailersLabel.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<List<MovieTrailer>> loader) {
     }
 }

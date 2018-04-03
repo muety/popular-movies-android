@@ -51,7 +51,7 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
         public void onDataLoaded();
     }
 
-    private static final int LOADER_ID = 0;
+    private static final int MOVIE_LIST_LOADER_ID = 0;
 
     @BindView(R.id.main_movies_gv)
     GridView moviesContainer;
@@ -101,7 +101,7 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
         currentOrder = MovieSortOrder.valueOf(prefs.getString(KEY_SORT_ORDER, MovieSortOrder.POPULAR.name()));
         updateTitle(currentOrder);
 
-        getLoaderManager().initLoader(LOADER_ID, createLoaderBundle(), this);
+        getLoaderManager().initLoader(MOVIE_LIST_LOADER_ID, createLoaderBundle(), this);
 
         moviesContainer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -191,13 +191,13 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
             case R.id.action_sort_popular:
                 currentOrder = MovieSortOrder.POPULAR;
                 prefs.edit().putString(KEY_SORT_ORDER, currentOrder.name()).apply();
-                getLoaderManager().restartLoader(LOADER_ID, createLoaderBundle(), this);
+                getLoaderManager().restartLoader(MOVIE_LIST_LOADER_ID, createLoaderBundle(), this);
                 resetScrollListener();
                 return true;
             case R.id.action_sort_rating:
                 currentOrder = MovieSortOrder.TOP_RATED;
                 prefs.edit().putString(KEY_SORT_ORDER, currentOrder.name()).apply();
-                getLoaderManager().restartLoader(LOADER_ID, createLoaderBundle(), this);
+                getLoaderManager().restartLoader(MOVIE_LIST_LOADER_ID, createLoaderBundle(), this);
                 resetScrollListener();
                 return true;
         }
@@ -211,7 +211,7 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
         moviesContainer.setOnScrollListener(new EndlessScrollListener() {
             @Override
             public boolean onLoadMore(int page, int totalItemsCount) {
-                getLoaderManager().restartLoader(LOADER_ID, createLoaderBundle(page, true), OverviewFragment.this);
+                getLoaderManager().restartLoader(MOVIE_LIST_LOADER_ID, createLoaderBundle(page, true), OverviewFragment.this);
                 return true;
             }
         });

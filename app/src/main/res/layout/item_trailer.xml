@@ -4,20 +4,24 @@
     android:id="@+id/item_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp">
 
     <ImageView
         android:id="@+id/details_trailer_icon_iv"
         android:layout_width="48dp"
         android:layout_height="wrap_content"
-        android:layout_marginRight="16dp"
+        android:layout_marginRight="8dp"
         app:srcCompat="@drawable/ic_play_circle_outline_black_48dp" />
 
     <TextView
         android:id="@+id/details_trailer_title_tv"
-        android:layout_width="wrap_content"
+        style="@style/SmallText"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_weight="1"
+        android:ellipsize="end"
         android:text="TextView" />
 </LinearLayout>
