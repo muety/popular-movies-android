@@ -4,10 +4,7 @@
 
 package com.github.n1try.popularmovies.serialization;
 
-import com.github.n1try.popularmovies.model.Movie;
-import com.github.n1try.popularmovies.model.TmdbGenresResult;
-import com.github.n1try.popularmovies.model.TmdbMovieVideosResult;
-import com.github.n1try.popularmovies.model.TmdbMoviesResult;
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -25,11 +22,7 @@ public class GsonHolder {
 
     private GsonHolder() {
         GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(Movie.class, new TmdbMovieDeserializer());
-        gsonBuilder.registerTypeAdapter(Movie.class, new TmdbMovieSerializer());
-        gsonBuilder.registerTypeAdapter(TmdbMoviesResult.class, new TmdbMoviesResultDeserializer());
-        gsonBuilder.registerTypeAdapter(TmdbGenresResult.class, new TmdbGenresResultDeserializer());
-        gsonBuilder.registerTypeAdapter(TmdbMovieVideosResult.class, new TmdbMovieVideosResultDeserializer());
+        gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
         gson = gsonBuilder.create();
     }
 }

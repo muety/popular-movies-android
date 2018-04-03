@@ -4,6 +4,7 @@
 
 package com.github.n1try.popularmovies.model;
 
+
 import java.util.List;
 
 import lombok.AllArgsConstructor;

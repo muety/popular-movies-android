@@ -10,6 +10,7 @@ import android.os.Parcelable;
 import com.github.n1try.popularmovies.serialization.GsonHolder;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ public class Movie implements Parcelable {
     private double id;
     private String title;
     private String overview;
+    private List<Double> genreIds;
     private List<Genre> genres;
     private Date releaseDate;
     private String posterPath;
@@ -39,8 +41,11 @@ public class Movie implements Parcelable {
     private List<MovieTrailer> trailers;
 
     public void enrich(Map<Double, Genre> genreMap) {
-        for (Genre genre : genres) {
-            genre.setName(genreMap.get(genre.getId()).getName());
+        if (genres == null) {
+            genres = new ArrayList<>();
+        }
+        for (double id : genreIds) {
+            genres.add(new Genre(id, genreMap.get(id).getName()));
         }
     }
 

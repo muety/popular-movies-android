@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.github.n1try.popularmovies.R;
@@ -62,6 +63,8 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
     TextView trailersLabel;
     @BindView(R.id.details_trailers_lv)
     ListView trailersLv;
+    @BindView(R.id.details_scroll_view)
+    ScrollView containerSv;
 
     private static final int TRAILER_LIST_LOADER_ID = 1;
 
@@ -163,6 +166,7 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onLoadFinished(@NonNull Loader<List<MovieTrailer>> loader, List<MovieTrailer> trailers) {
         if (!trailers.isEmpty()) {
+            trailersLv.setFocusable(false);
             movie.setTrailers(trailers);
             trailerAdapter = new MovieTrailerItemAdapter(getContext(), trailers);
             trailersLv.setAdapter(trailerAdapter);

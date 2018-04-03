@@ -140,6 +140,10 @@ public class TmdbApiService {
                 List<Movie> movies = gson.fromJson(body.string(), TmdbMoviesResult.class).getResults();
                 for (Movie m : movies) {
                     m.enrich(genres);
+                    if (!m.getPosterPath().startsWith("http://"))
+                        m.setPosterPath(API_IMAGE_SM_BASE_URL + m.getPosterPath());
+                    if (!m.getBackdropPath().startsWith("http://"))
+                        m.setBackdropPath(API_IMAGE_SM_BASE_URL + m.getBackdropPath());
                 }
                 body.close();
                 return movies;

@@ -26,6 +26,12 @@ public class AndroidUtils {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
+    /**
+     * Launches an intent to view a YouTube video either in the YouTube app or in a browser, if its not installed.
+     *
+     * @param context Application context.
+     * @param id      The video's ID (after watch?v=)
+     */
     public static void watchYoutubeVideo(Context context, String id) {
         Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + id));
         Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + id));
@@ -36,6 +42,10 @@ public class AndroidUtils {
         }
     }
 
+    /**
+     * Solves the problem that ScrollViews don't work with ListViews inside.
+     * @param listView ListView inside the ScrollView to be fixed.
+     */
     public static void setListViewHeightBasedOnChildren(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter();
         if (listAdapter == null) {
