@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <integer name="main_num_grid_cols_">2</integer>
+    <integer name="details_max_review_content_length">200</integer>
 </resources>

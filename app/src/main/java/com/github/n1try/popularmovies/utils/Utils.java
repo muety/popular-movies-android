@@ -22,4 +22,9 @@ public class Utils {
         SimpleDateFormat parser = new SimpleDateFormat(formatString);
         return parser.format(date);
     }
+
+    public static String ellipsizeText(String text, int maxLength) {
+        if (text.length() <= maxLength) return new String(text);
+        return text.substring(0, maxLength - 4) + " ...";
+    }
 }
