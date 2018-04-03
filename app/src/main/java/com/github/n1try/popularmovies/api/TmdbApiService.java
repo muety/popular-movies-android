@@ -12,8 +12,10 @@ import android.util.Log;
 import com.github.n1try.popularmovies.BuildConfig;
 import com.github.n1try.popularmovies.model.Genre;
 import com.github.n1try.popularmovies.model.Movie;
+import com.github.n1try.popularmovies.model.MovieReview;
 import com.github.n1try.popularmovies.model.MovieTrailer;
 import com.github.n1try.popularmovies.model.TmdbGenresResult;
+import com.github.n1try.popularmovies.model.TmdbMovieReviewsResult;
 import com.github.n1try.popularmovies.model.TmdbMovieVideosResult;
 import com.github.n1try.popularmovies.model.TmdbMoviesResult;
 import com.github.n1try.popularmovies.serialization.GsonHolder;
@@ -55,30 +57,6 @@ public class TmdbApiService {
                 .build();
         gson = GsonHolder.getInstance().getGson();
         genres = getGenreMap();
-    }
-
-    public List<MovieTrailer> getVideosByMovie(double movieId) {
-        Uri uri = Uri.parse(API_BASE_URL + "/movie/" + String.valueOf(movieId) + "/videos");
-        uri = uri.buildUpon().appendQueryParameter("api_key", API_KEY).build();
-        Request request = new Request.Builder().url(uri.toString()).build();
-
-        try {
-            Response response = httpClient.newCall(request).execute();
-            if (!response.isSuccessful()) throw new IOException(response.message());
-            ResponseBody body = response.body();
-            List<MovieTrailer> trailers = gson.fromJson(body.string(), TmdbMovieVideosResult.class).getResults();
-            for (MovieTrailer t : trailers) {
-                if (!TextUtils.equals(t.getSite().toLowerCase(), "YouTube".toLowerCase())) {
-                    trailers.remove(t);
-                }
-            }
-            body.close();
-            return trailers;
-        } catch (IOException e) {
-            Log.w(getClass().getSimpleName(), "Could not fetch trailers.\n" + e.getMessage());
-        }
-
-        return new ArrayList<>();
     }
 
     /**
@@ -127,6 +105,49 @@ public class TmdbApiService {
      */
     public List<Movie> getTopRatedMovies(int page) {
         return fetchMovieList(Uri.parse(API_BASE_URL + "/movie/top_rated").buildUpon().appendQueryParameter("page", String.valueOf(page)).build());
+    }
+
+    public List<MovieTrailer> getVideosByMovie(double movieId) {
+        Uri uri = Uri.parse(API_BASE_URL + "/movie/" + String.valueOf(movieId) + "/videos");
+        uri = uri.buildUpon().appendQueryParameter("api_key", API_KEY).build();
+        Request request = new Request.Builder().url(uri.toString()).build();
+
+        try {
+            Response response = httpClient.newCall(request).execute();
+            if (!response.isSuccessful()) throw new IOException(response.message());
+            ResponseBody body = response.body();
+            List<MovieTrailer> trailers = gson.fromJson(body.string(), TmdbMovieVideosResult.class).getResults();
+            for (MovieTrailer t : trailers) {
+                if (!TextUtils.equals(t.getSite().toLowerCase(), "YouTube".toLowerCase())) {
+                    trailers.remove(t);
+                }
+            }
+            body.close();
+            return trailers;
+        } catch (IOException e) {
+            Log.w(getClass().getSimpleName(), "Could not fetch trailers.\n" + e.getMessage());
+        }
+
+        return new ArrayList<>();
+    }
+
+    public List<MovieReview> getReviewsByMovie(double movieId) {
+        Uri uri = Uri.parse(API_BASE_URL + "/movie/" + String.valueOf(movieId) + "/reviews");
+        uri = uri.buildUpon().appendQueryParameter("api_key", API_KEY).build();
+        Request request = new Request.Builder().url(uri.toString()).build();
+
+        try {
+            Response response = httpClient.newCall(request).execute();
+            if (!response.isSuccessful()) throw new IOException(response.message());
+            ResponseBody body = response.body();
+            List<MovieReview> reviews = gson.fromJson(body.string(), TmdbMovieReviewsResult.class).getResults();
+            body.close();
+            return reviews;
+        } catch (IOException e) {
+            Log.w(getClass().getSimpleName(), "Could not fetch reviews.\n" + e.getMessage());
+        }
+
+        return new ArrayList<>();
     }
 
     private List<Movie> fetchMovieList(Uri uri) {

@@ -34,6 +34,10 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <style name="NormalBoldText" parent="NormalText">
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="NormalSubtleText" parent="NormalText">
         <item name="android:textColor">@color/colorTextMedium</item>
     </style>

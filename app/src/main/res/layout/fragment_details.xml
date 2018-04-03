@@ -216,6 +216,24 @@
                 android:layout_marginTop="8dp"
                 android:visibility="gone" />
 
+            <TextView
+                android:id="@+id/details_reviews_label_tv"
+                style="@style/SmallLabelText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/label_reviews"
+                android:visibility="gone" />
+
+            <ListView
+                android:id="@+id/details_reviews_lv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:visibility="gone" />
+
 
         </LinearLayout>
 

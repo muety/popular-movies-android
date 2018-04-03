@@ -39,6 +39,7 @@ public class Movie implements Parcelable {
     private double popularity;
     private boolean adult;
     private List<MovieTrailer> trailers;
+    private List<MovieReview> reviews;
 
     public void enrich(Map<Double, Genre> genreMap) {
         if (genres == null) {

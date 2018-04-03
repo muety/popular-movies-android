@@ -15,4 +15,5 @@
     <string name="main_loading_text">Wait while movies are being fetched...</string>
     <string name="offline_message">Could not fetch movies from the internet. Maybe a connection issue?</string>
     <string name="label_trailers">Trailers</string>
+    <string name="label_reviews">Reviews</string>
 </resources>

@@ -10,7 +10,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
@@ -27,6 +27,7 @@ import android.widget.TextView;
 import com.github.n1try.popularmovies.R;
 import com.github.n1try.popularmovies.api.TmdbApiService;
 import com.github.n1try.popularmovies.model.Movie;
+import com.github.n1try.popularmovies.model.MovieReview;
 import com.github.n1try.popularmovies.model.MovieTrailer;
 import com.github.n1try.popularmovies.utils.AndroidUtils;
 import com.github.n1try.popularmovies.utils.Utils;
@@ -40,7 +41,7 @@ import butterknife.ButterKnife;
 
 import static com.github.n1try.popularmovies.ui.MainActivity.KEY_MOVIE_ID;
 
-public class DetailsFragment extends Fragment implements LoaderManager.LoaderCallbacks<List<MovieTrailer>> {
+public class DetailsFragment extends Fragment {
     @BindView(R.id.details_movie_cover_placeholder_container)
     ViewGroup movieCoverPlaceholderContainer;
     @BindView(R.id.details_movie_cover_placeholder_iv)
@@ -60,16 +61,22 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
     @BindView(R.id.details_title_tv)
     TextView movieTitleTv;
     @BindView(R.id.details_trailers_label_tv)
-    TextView trailersLabel;
+    TextView trailersLabelTv;
     @BindView(R.id.details_trailers_lv)
     ListView trailersLv;
+    @BindView(R.id.details_reviews_label_tv)
+    TextView reviewsLabelTv;
+    @BindView(R.id.details_reviews_lv)
+    ListView reviewsLv;
     @BindView(R.id.details_scroll_view)
     ScrollView containerSv;
 
     private static final int TRAILER_LIST_LOADER_ID = 1;
+    private static final int REVIEWS_LIST_LOADER_ID = 2;
 
     private Movie movie;
     private MovieTrailerItemAdapter trailerAdapter;
+    private MovieReviewItemAdapter reviewAdapter;
 
     public static DetailsFragment newInstance(Movie movie) {
         DetailsFragment fragment = new DetailsFragment();
@@ -84,7 +91,8 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
         super.onCreate(savedInstanceState);
 
         movie = getArguments().getParcelable(MainActivity.KEY_MOVIE_ID);
-        getLoaderManager().initLoader(TRAILER_LIST_LOADER_ID, createLoaderBundle(), this);
+        getLoaderManager().initLoader(TRAILER_LIST_LOADER_ID, createLoaderBundle(), trailerLoaderCallbacks);
+        getLoaderManager().initLoader(REVIEWS_LIST_LOADER_ID, createLoaderBundle(), reviewsLoaderCallbacks);
     }
 
     @Override
@@ -142,44 +150,89 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
         return bundle;
     }
 
-    @NonNull
-    @Override
-    public Loader<List<MovieTrailer>> onCreateLoader(int id, final Bundle args) {
-        return new AsyncTaskLoader<List<MovieTrailer>>(getContext()) {
-            @Nullable
-            @Override
-            public List<MovieTrailer> loadInBackground() {
-                if (movie.getTrailers() == null) {
-                    return TmdbApiService.getInstance(getContext()).getVideosByMovie(args.getDouble(KEY_MOVIE_ID));
-                } else {
-                    return movie.getTrailers();
+    private LoaderCallbacks trailerLoaderCallbacks = new LoaderCallbacks<List<MovieTrailer>>() {
+        @NonNull
+        @Override
+        public Loader<List<MovieTrailer>> onCreateLoader(int id, final Bundle args) {
+            return new AsyncTaskLoader<List<MovieTrailer>>(getContext()) {
+                @Nullable
+                @Override
+                public List<MovieTrailer> loadInBackground() {
+                    if (movie.getTrailers() == null) {
+                        return TmdbApiService.getInstance(getContext()).getVideosByMovie(args.getDouble(KEY_MOVIE_ID));
+                    } else {
+                        return movie.getTrailers();
+                    }
                 }
-            }
 
-            @Override
-            protected void onStartLoading() {
-                forceLoad();
-            }
-        };
-    }
-
-    @Override
-    public void onLoadFinished(@NonNull Loader<List<MovieTrailer>> loader, List<MovieTrailer> trailers) {
-        if (!trailers.isEmpty()) {
-            trailersLv.setFocusable(false);
-            movie.setTrailers(trailers);
-            trailerAdapter = new MovieTrailerItemAdapter(getContext(), trailers);
-            trailersLv.setAdapter(trailerAdapter);
-            AndroidUtils.setListViewHeightBasedOnChildren(trailersLv);
-            trailersLv.setVisibility(View.VISIBLE);
-            trailersLabel.setVisibility(View.VISIBLE);
-        } else {
-            trailersLv.setVisibility(View.GONE);
-            trailersLabel.setVisibility(View.GONE);
+                @Override
+                protected void onStartLoading() {
+                    forceLoad();
+                }
+            };
         }
-    }
 
-    @Override
-    public void onLoaderReset(@NonNull Loader<List<MovieTrailer>> loader) {
-    }
+        @Override
+        public void onLoadFinished(@NonNull Loader<List<MovieTrailer>> loader, List<MovieTrailer> trailers) {
+            if (!trailers.isEmpty()) {
+                trailersLv.setFocusable(false);
+                movie.setTrailers(trailers);
+                trailerAdapter = new MovieTrailerItemAdapter(getContext(), trailers);
+                trailersLv.setAdapter(trailerAdapter);
+                AndroidUtils.setListViewHeightBasedOnChildren(trailersLv);
+                trailersLv.setVisibility(View.VISIBLE);
+                trailersLabelTv.setVisibility(View.VISIBLE);
+            } else {
+                trailersLv.setVisibility(View.GONE);
+                trailersLabelTv.setVisibility(View.GONE);
+            }
+        }
+
+        @Override
+        public void onLoaderReset(@NonNull Loader<List<MovieTrailer>> loader) {
+        }
+    };
+
+    private LoaderCallbacks reviewsLoaderCallbacks = new LoaderCallbacks<List<MovieReview>>() {
+        @NonNull
+        @Override
+        public Loader<List<MovieReview>> onCreateLoader(int id, final Bundle args) {
+            return new AsyncTaskLoader<List<MovieReview>>(getContext()) {
+                @Nullable
+                @Override
+                public List<MovieReview> loadInBackground() {
+                    if (movie.getTrailers() == null) {
+                        return TmdbApiService.getInstance(getContext()).getReviewsByMovie(args.getDouble(KEY_MOVIE_ID));
+                    } else {
+                        return movie.getReviews();
+                    }
+                }
+
+                @Override
+                protected void onStartLoading() {
+                    forceLoad();
+                }
+            };
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull Loader<List<MovieReview>> loader, List<MovieReview> reviews) {
+            if (!reviews.isEmpty()) {
+                reviewsLv.setFocusable(false);
+                movie.setReviews(reviews);
+                reviewAdapter = new MovieReviewItemAdapter(getContext(), reviews);
+                reviewsLv.setAdapter(reviewAdapter);
+                AndroidUtils.setListViewHeightBasedOnChildren(reviewsLv);
+                reviewsLv.setVisibility(View.VISIBLE);
+                reviewsLabelTv.setVisibility(View.VISIBLE);
+            } else {
+                reviewsLv.setVisibility(View.GONE);
+                reviewsLabelTv.setVisibility(View.GONE);
+            }
+        }
+
+        @Override
+        public void onLoaderReset(@NonNull Loader<List<MovieReview>> loader) {
+        }
+    };
 }
