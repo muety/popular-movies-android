@@ -21,6 +21,11 @@
 
     <style name="SmallLabelText" parent="TextAppearance.AppCompat">
         <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
+    <style name="SmallLabelTextSw" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/colorTextMedium</item>
     </style>
 

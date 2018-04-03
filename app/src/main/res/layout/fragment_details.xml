@@ -52,6 +52,7 @@
 
             <TextView
                 android:id="@+id/details_title_tv"
+                style="@style/HeadingText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -91,7 +92,7 @@
 
                     <TextView
                         android:id="@+id/textView8"
-                        style="@style/SmallLabelText"
+                        style="@style/SmallLabelTextSw"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -124,7 +125,7 @@
 
                     <TextView
                         android:id="@+id/textView9"
-                        style="@style/SmallLabelText"
+                        style="@style/SmallLabelTextSw"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -140,6 +141,7 @@
 
             <TextView
                 android:id="@+id/textView2"
+                style="@style/SmallLabelText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
@@ -149,6 +151,7 @@
 
             <TextView
                 android:id="@+id/details_genres_tv"
+                style="@style/NormalText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -156,6 +159,7 @@
 
             <TextView
                 android:id="@+id/textView4"
+                style="@style/SmallLabelText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
@@ -165,6 +169,7 @@
 
             <TextView
                 android:id="@+id/details_date_tv"
+                style="@style/NormalText"
                 android:layout_width="match_parent"
                 android:layout_height="26dp"
                 android:layout_marginEnd="16dp"
@@ -174,6 +179,7 @@
 
             <TextView
                 android:id="@+id/textView6"
+                style="@style/SmallLabelText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
@@ -183,6 +189,7 @@
 
             <TextView
                 android:id="@+id/details_summary_tv"
+                style="@style/NormalText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
@@ -193,6 +200,7 @@
 
             <TextView
                 android:id="@+id/details_trailers_label_tv"
+                style="@style/SmallLabelText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
