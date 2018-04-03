@@ -11,7 +11,9 @@ import android.util.Log;
 import com.github.n1try.popularmovies.BuildConfig;
 import com.github.n1try.popularmovies.model.Genre;
 import com.github.n1try.popularmovies.model.Movie;
+import com.github.n1try.popularmovies.model.MovieTrailer;
 import com.github.n1try.popularmovies.model.TmdbGenresResult;
+import com.github.n1try.popularmovies.model.TmdbMovieVideosResult;
 import com.github.n1try.popularmovies.model.TmdbMoviesResult;
 import com.github.n1try.popularmovies.serialization.GsonHolder;
 import com.google.gson.Gson;
@@ -32,6 +34,7 @@ public class TmdbApiService {
     public static final String API_BASE_URL = "https://api.themoviedb.org/3";
     public static final String API_IMAGE_SM_BASE_URL = "http://image.tmdb.org/t/p/w185";
     public static final String API_IMAGE_LG_BASE_URL = "http://image.tmdb.org/t/p/w780";
+    public static final String API_TRAILER_URL_PREFIX = "https://www.youtube.com/watch?v=";
     private static final String API_KEY = BuildConfig.TMDB_API_KEY;
     private static TmdbApiService ourInstance;
     private OkHttpClient httpClient;
@@ -52,6 +55,25 @@ public class TmdbApiService {
                 .build();
         gson = GsonHolder.getInstance().getGson();
         genres = getGenreMap();
+    }
+
+    public List<MovieTrailer> getVideosByMovie(double movieId) {
+        Uri uri = Uri.parse(API_BASE_URL + "/movie/" + String.valueOf(movieId) + "/videos");
+        uri = uri.buildUpon().appendQueryParameter("api_key", API_KEY).build();
+        Request request = new Request.Builder().url(uri.toString()).build();
+
+        try {
+            Response response = httpClient.newCall(request).execute();
+            if (!response.isSuccessful()) throw new IOException(response.message());
+            ResponseBody body = response.body();
+            List<MovieTrailer> trailers = gson.fromJson(body.string(), TmdbMovieVideosResult.class).getResults();
+            body.close();
+            return trailers;
+        } catch (IOException e) {
+            Log.w(getClass().getSimpleName(), "Could not fetch trailers.\n" + e.getMessage());
+        }
+
+        return new ArrayList<>();
     }
 
     /**
