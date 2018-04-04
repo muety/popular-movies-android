@@ -27,6 +27,8 @@ public class MainActivity extends AppCompatActivity implements OverviewFragment.
     public static final String KEY_HIDE_LOADING_DIALOG = "hide_loading_dialog";
     public static final String KEY_MOVIE_ID = "movie_id";
 
+    private static final String TAG_OVERVIEW_FRAGMENT = "overview_fragment";
+
     @Nullable
     @BindView(R.id.main_details_container)
     ViewGroup detailsContainer;
@@ -41,10 +43,14 @@ public class MainActivity extends AppCompatActivity implements OverviewFragment.
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        overviewFragment = new OverviewFragment();
-
         fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.main_overview_container, overviewFragment).commit();
+        OverviewFragment foundFragment = (OverviewFragment) fragmentManager.findFragmentByTag(TAG_OVERVIEW_FRAGMENT);
+        if (foundFragment == null) {
+            overviewFragment = new OverviewFragment();
+            fragmentManager.beginTransaction().replace(R.id.main_overview_container, overviewFragment, TAG_OVERVIEW_FRAGMENT).commit();
+        } else {
+            overviewFragment = foundFragment;
+        }
 
         updateTitle();
     }

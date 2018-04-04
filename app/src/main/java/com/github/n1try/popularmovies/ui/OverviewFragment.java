@@ -11,6 +11,7 @@ import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -56,6 +57,7 @@ public class OverviewFragment extends Fragment {
 
     private static final int MOVIE_LIST_LOADER_ID = 0;
     private static final int FAVORITE_MOVIE_LIST_LOADER_ID = 10;
+    private static final String KEY_LIST_INSTANCE_STATE = "lv_state";
 
     @BindView(R.id.main_movies_gv)
     GridView moviesContainer;
@@ -69,6 +71,7 @@ public class OverviewFragment extends Fragment {
     private ProgressDialog loadingDialog;
     private MovieSortOrder currentOrder;
     private MovieSortOrder currentLoaderState;
+    private Parcelable listInstanceState;
 
     private OnMovieSelectedListener mMovieSelectedListener;
     private OnDataLoadedListener mDataLoadedListener;
@@ -77,6 +80,9 @@ public class OverviewFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        if (savedInstanceState != null) {
+            listInstanceState = savedInstanceState.getParcelable(KEY_LIST_INSTANCE_STATE);
+        }
     }
 
     @Override
@@ -127,6 +133,12 @@ public class OverviewFragment extends Fragment {
         offlineIndicatorIv.setImageDrawable(mIcon);
 
         return view;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(KEY_LIST_INSTANCE_STATE, moviesContainer.onSaveInstanceState());
     }
 
     @Override
@@ -297,6 +309,9 @@ public class OverviewFragment extends Fragment {
             // Initial load
             movieAdapter = new MovieItemAdapter(getActivity().getApplicationContext(), movies);
             moviesContainer.setAdapter(movieAdapter);
+            if (listInstanceState != null) {
+                moviesContainer.onRestoreInstanceState(listInstanceState);
+            }
         } else {
             // Load caused by infinite scrolling
             movieAdapter.addAll(movies);

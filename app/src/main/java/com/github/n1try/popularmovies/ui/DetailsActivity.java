@@ -15,6 +15,7 @@ import com.github.n1try.popularmovies.model.Movie;
 
 
 public class DetailsActivity extends AppCompatActivity {
+    private static final String TAG_DETAILS_FRAGMENT = "details_fragment";
     private FragmentManager fragmentManager;
 
     @Override
@@ -26,8 +27,10 @@ public class DetailsActivity extends AppCompatActivity {
         setTitle(movie.getTitle());
         fragmentManager = getSupportFragmentManager();
 
-        Fragment fragment = DetailsFragment.newInstance(movie);
-        fragmentManager.beginTransaction().replace(R.id.details_fragment_container, fragment).commit();
+        if (fragmentManager.findFragmentByTag(TAG_DETAILS_FRAGMENT) == null) {
+            Fragment fragment = DetailsFragment.newInstance(movie);
+            fragmentManager.beginTransaction().replace(R.id.details_fragment_container, fragment, TAG_DETAILS_FRAGMENT).commit();
+        }
     }
 
     @Override
