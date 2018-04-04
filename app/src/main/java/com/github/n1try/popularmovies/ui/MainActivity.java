@@ -82,6 +82,8 @@ public class MainActivity extends AppCompatActivity implements OverviewFragment.
         if (overviewFragment == null) return;
         if (overviewFragment.getSortOrder() == MovieSortOrder.TOP_RATED)
             setTitle(R.string.title_top_rated_movies);
+        else if (overviewFragment.getSortOrder() == MovieSortOrder.FAVORITE)
+            setTitle(getString(R.string.favorite));
         else setTitle(R.string.title_popular_movies);
     }
 

@@ -7,6 +7,7 @@ package com.github.n1try.popularmovies.ui;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,6 +32,7 @@ import com.github.n1try.popularmovies.R;
 import com.github.n1try.popularmovies.api.TmdbApiService;
 import com.github.n1try.popularmovies.model.Movie;
 import com.github.n1try.popularmovies.model.MovieSortOrder;
+import com.github.n1try.popularmovies.persistence.FavoriteMoviesContract;
 import com.github.n1try.popularmovies.utils.AndroidUtils;
 
 import java.util.ArrayList;
@@ -42,7 +45,7 @@ import static com.github.n1try.popularmovies.ui.MainActivity.KEY_HIDE_LOADING_DI
 import static com.github.n1try.popularmovies.ui.MainActivity.KEY_PAGE;
 import static com.github.n1try.popularmovies.ui.MainActivity.KEY_SORT_ORDER;
 
-public class OverviewFragment extends Fragment implements LoaderManager.LoaderCallbacks<List<Movie>> {
+public class OverviewFragment extends Fragment {
     public interface OnMovieSelectedListener {
         public void onMovieSelected(Movie movie);
     }
@@ -52,6 +55,7 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     private static final int MOVIE_LIST_LOADER_ID = 0;
+    private static final int FAVORITE_MOVIE_LIST_LOADER_ID = 10;
 
     @BindView(R.id.main_movies_gv)
     GridView moviesContainer;
@@ -100,7 +104,7 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
         prefs = getActivity().getPreferences(Context.MODE_PRIVATE);
         currentOrder = MovieSortOrder.valueOf(prefs.getString(KEY_SORT_ORDER, MovieSortOrder.POPULAR.name()));
 
-        getLoaderManager().initLoader(MOVIE_LIST_LOADER_ID, createLoaderBundle(), this);
+        initOrRestartLoader();
 
         moviesContainer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -126,63 +130,6 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     @Override
-    public Loader<List<Movie>> onCreateLoader(int id, Bundle bundle) {
-        final MovieSortOrder order = MovieSortOrder.valueOf(bundle.getString(KEY_SORT_ORDER));
-        final int page = bundle.getInt(KEY_PAGE, 1);
-        final boolean hideLoadingDialog = bundle.getBoolean(KEY_HIDE_LOADING_DIALOG, false);
-
-        return new AsyncTaskLoader<List<Movie>>(getContext()) {
-            @Override
-            public List<Movie> loadInBackground() {
-                switch (order) {
-                    case POPULAR:
-                        return TmdbApiService.getInstance(getContext()).getPopularMovies(page);
-                    case TOP_RATED:
-                        return TmdbApiService.getInstance(getContext()).getTopRatedMovies(page);
-                    default:
-                        return new ArrayList<>();
-                }
-            }
-
-            @Override
-            protected void onStartLoading() {
-                if (!hideLoadingDialog) loadingDialog.show();
-                forceLoad();
-            }
-        };
-    }
-
-    @Override
-    public void onLoadFinished(@NonNull Loader<List<Movie>> loader, List<Movie> movies) {
-        loadingDialog.dismiss();
-
-        if ((movies.isEmpty()) && !AndroidUtils.isNetworkAvailable(getContext())) {
-            moviesContainer.setVisibility(View.GONE);
-            offlineContainer.setVisibility(View.VISIBLE);
-        } else {
-            moviesContainer.setVisibility(View.VISIBLE);
-            offlineContainer.setVisibility(View.GONE);
-        }
-
-        if (currentOrder != currentLoaderState) {
-            // Initial load
-            movieAdapter = new MovieItemAdapter(getActivity().getApplicationContext(), movies);
-            moviesContainer.setAdapter(movieAdapter);
-        } else {
-            // Load caused by infinite scrolling
-            movieAdapter.addAll(movies);
-            movieAdapter.notifyDataSetChanged();
-        }
-
-        currentLoaderState = currentOrder;
-        if (mDataLoadedListener != null) mDataLoadedListener.onDataLoaded();
-    }
-
-    @Override
-    public void onLoaderReset(@NonNull Loader<List<Movie>> loader) {
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
@@ -190,13 +137,19 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
             case R.id.action_sort_popular:
                 currentOrder = MovieSortOrder.POPULAR;
                 prefs.edit().putString(KEY_SORT_ORDER, currentOrder.name()).apply();
-                getLoaderManager().restartLoader(MOVIE_LIST_LOADER_ID, createLoaderBundle(), this);
+                initOrRestartLoader();
                 resetScrollListener();
                 return true;
             case R.id.action_sort_rating:
                 currentOrder = MovieSortOrder.TOP_RATED;
                 prefs.edit().putString(KEY_SORT_ORDER, currentOrder.name()).apply();
-                getLoaderManager().restartLoader(MOVIE_LIST_LOADER_ID, createLoaderBundle(), this);
+                initOrRestartLoader();
+                resetScrollListener();
+                return true;
+            case R.id.action_sort_favorites:
+                currentOrder = MovieSortOrder.FAVORITE;
+                prefs.edit().putString(KEY_SORT_ORDER, currentOrder.name()).apply();
+                initOrRestartLoader();
                 resetScrollListener();
                 return true;
         }
@@ -208,7 +161,8 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
         moviesContainer.setOnScrollListener(new EndlessScrollListener() {
             @Override
             public boolean onLoadMore(int page, int totalItemsCount) {
-                getLoaderManager().restartLoader(MOVIE_LIST_LOADER_ID, createLoaderBundle(page, true), OverviewFragment.this);
+                if (currentOrder == MovieSortOrder.FAVORITE) return false;
+                getLoaderManager().restartLoader(MOVIE_LIST_LOADER_ID, createLoaderBundle(page, true), moviesFromApiLoaderCallbacks);
                 return true;
             }
         });
@@ -217,6 +171,7 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
     /**
      * Triggers OnMovieSelectedListener::onMovieSelected with the Movie object contained
      * at position i of the current adapter's items list. Does nothing, if no item is present at position i.
+     *
      * @param i Position of Movie to select
      */
     public void selectMovieByIndex(int i) {
@@ -241,5 +196,114 @@ public class OverviewFragment extends Fragment implements LoaderManager.LoaderCa
         bundle.putInt(KEY_PAGE, pageToLoad);
         bundle.putBoolean(KEY_HIDE_LOADING_DIALOG, hideLoadingDialog);
         return bundle;
+    }
+
+    private void initOrRestartLoader() {
+        LoaderManager lm = getLoaderManager();
+        if (currentOrder == MovieSortOrder.FAVORITE) {
+            if (lm.getLoader(FAVORITE_MOVIE_LIST_LOADER_ID) == null) {
+                lm.initLoader(FAVORITE_MOVIE_LIST_LOADER_ID, createLoaderBundle(), favoriteMoviesFromDbLoaderCallbacks);
+            } else {
+                lm.restartLoader(FAVORITE_MOVIE_LIST_LOADER_ID, createLoaderBundle(), favoriteMoviesFromDbLoaderCallbacks);
+            }
+            lm.destroyLoader(MOVIE_LIST_LOADER_ID);
+        } else {
+            if (lm.getLoader(MOVIE_LIST_LOADER_ID) == null) {
+                lm.initLoader(MOVIE_LIST_LOADER_ID, createLoaderBundle(), moviesFromApiLoaderCallbacks);
+            } else {
+                lm.restartLoader(MOVIE_LIST_LOADER_ID, createLoaderBundle(), moviesFromApiLoaderCallbacks);
+            }
+            lm.destroyLoader(FAVORITE_MOVIE_LIST_LOADER_ID);
+        }
+    }
+
+    private LoaderManager.LoaderCallbacks<List<Movie>> moviesFromApiLoaderCallbacks = new LoaderManager.LoaderCallbacks<List<Movie>>() {
+        @Override
+        public Loader<List<Movie>> onCreateLoader(int id, Bundle bundle) {
+            final MovieSortOrder order = MovieSortOrder.valueOf(bundle.getString(KEY_SORT_ORDER));
+            final int page = bundle.getInt(KEY_PAGE, 1);
+            final boolean hideLoadingDialog = bundle.getBoolean(KEY_HIDE_LOADING_DIALOG, false);
+
+            return new AsyncTaskLoader<List<Movie>>(getContext()) {
+                @Override
+                public List<Movie> loadInBackground() {
+                    switch (order) {
+                        case POPULAR:
+                            return TmdbApiService.getInstance(getContext()).getPopularMovies(page);
+                        case TOP_RATED:
+                            return TmdbApiService.getInstance(getContext()).getTopRatedMovies(page);
+                        default:
+                            return new ArrayList<>();
+                    }
+                }
+
+                @Override
+                protected void onStartLoading() {
+                    if (!hideLoadingDialog) loadingDialog.show();
+                    forceLoad();
+                }
+            };
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull Loader<List<Movie>> loader, List<Movie> movies) {
+            postMoviesLoaded(movies);
+        }
+
+        @Override
+        public void onLoaderReset(@NonNull Loader<List<Movie>> loader) {
+        }
+    };
+
+    private LoaderManager.LoaderCallbacks<Cursor> favoriteMoviesFromDbLoaderCallbacks = new LoaderManager.LoaderCallbacks<Cursor>() {
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
+            return new CursorLoader(getContext(),
+                    FavoriteMoviesContract.FavoriteMovieEntry.CONTENT_URI,
+                    null,
+                    null,
+                    null,
+                    null);
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+            List<Movie> movies = new ArrayList<>();
+            data.moveToFirst();
+            for (int i = 0; i < data.getCount(); i++) {
+                movies.add(FavoriteMoviesContract.FavoriteMovieEntry.movieFromCursor(data));
+                data.moveToNext();
+            }
+            postMoviesLoaded(movies);
+        }
+
+        @Override
+        public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+        }
+    };
+
+    private void postMoviesLoaded(List<Movie> movies) {
+        loadingDialog.dismiss();
+
+        if ((movies.isEmpty()) && !AndroidUtils.isNetworkAvailable(getContext())) {
+            moviesContainer.setVisibility(View.GONE);
+            offlineContainer.setVisibility(View.VISIBLE);
+        } else {
+            moviesContainer.setVisibility(View.VISIBLE);
+            offlineContainer.setVisibility(View.GONE);
+        }
+
+        if (currentOrder == MovieSortOrder.FAVORITE || currentOrder != currentLoaderState) {
+            // Initial load
+            movieAdapter = new MovieItemAdapter(getActivity().getApplicationContext(), movies);
+            moviesContainer.setAdapter(movieAdapter);
+        } else {
+            // Load caused by infinite scrolling
+            movieAdapter.addAll(movies);
+            movieAdapter.notifyDataSetChanged();
+        }
+
+        currentLoaderState = currentOrder;
+        if (mDataLoadedListener != null) mDataLoadedListener.onDataLoaded();
     }
 }

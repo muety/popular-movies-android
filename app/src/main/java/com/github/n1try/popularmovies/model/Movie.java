@@ -37,7 +37,6 @@ public class Movie implements Parcelable {
     private String backdropPath;
     private double voteAverage;
     private double popularity;
-    private boolean adult;
     private List<MovieTrailer> trailers;
     private List<MovieReview> reviews;
 

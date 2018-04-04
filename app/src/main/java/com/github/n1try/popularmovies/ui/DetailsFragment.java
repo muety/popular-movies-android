@@ -5,7 +5,6 @@
 package com.github.n1try.popularmovies.ui;
 
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -140,10 +139,7 @@ public class DetailsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (!isMovieStarred()) {
-                    ContentValues values = new ContentValues();
-                    values.put(FavoriteMoviesContract.FavoriteMovieEntry._ID, movie.getId());
-                    values.put(FavoriteMoviesContract.FavoriteMovieEntry.COLUMN_TITLE, movie.getTitle());
-                    Uri resultUri = getActivity().getContentResolver().insert(FavoriteMoviesContract.FavoriteMovieEntry.CONTENT_URI, values);
+                    Uri resultUri = getActivity().getContentResolver().insert(FavoriteMoviesContract.FavoriteMovieEntry.CONTENT_URI, FavoriteMoviesContract.FavoriteMovieEntry.movieToContentValues(movie));
                     if (resultUri != null) {
                         setIconStarred();
                         Toast.makeText(getContext(), getString(R.string.alert_starred), Toast.LENGTH_LONG).show();

@@ -13,7 +13,7 @@ import android.support.annotation.Nullable;
 
 public class FavoriteMoviesProvider extends ContentProvider {
     private static final UriMatcher uriMatcher = buildUriMatcher();
-    private FavoriteMoviesDbHelper dbHelper;
+    private MoviesDbHelper dbHelper;
 
     private static final int FAVORITE_MOVIE = 100;
     private static final int FAVORITE_MOVIE_WITH_ID = 200;
@@ -28,7 +28,7 @@ public class FavoriteMoviesProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        dbHelper = new FavoriteMoviesDbHelper(getContext());
+        dbHelper = new MoviesDbHelper(getContext());
         return true;
     }
 
