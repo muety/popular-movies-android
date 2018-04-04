@@ -229,7 +229,7 @@ public class DetailsFragment extends Fragment {
 
         @Override
         public void onLoadFinished(@NonNull Loader<List<MovieTrailer>> loader, List<MovieTrailer> trailers) {
-            if (!trailers.isEmpty()) {
+            if (trailers != null && !trailers.isEmpty()) {
                 trailersLv.setFocusable(false);
                 movie.setTrailers(trailers);
                 trailerAdapter = new MovieTrailerItemAdapter(getContext(), trailers);
@@ -271,7 +271,7 @@ public class DetailsFragment extends Fragment {
 
         @Override
         public void onLoadFinished(@NonNull Loader<List<MovieReview>> loader, List<MovieReview> reviews) {
-            if (!reviews.isEmpty()) {
+            if (reviews != null && !reviews.isEmpty()) {
                 reviewsLv.setFocusable(false);
                 movie.setReviews(reviews);
                 reviewAdapter = new MovieReviewItemAdapter(getContext(), reviews);

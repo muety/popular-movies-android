@@ -6,10 +6,10 @@ My implementation of Project 1 from the [Udacity Android Developer Nanodegree Pr
 
 ## Screenshots
 ### Smartphone
-![](https://anchr.io/i/cTriO.png) ![](https://anchr.io/i/zZsBE.png)
+![](https://anchr.io/i/X1Ssf.png) ![](https://anchr.io/i/BNeaw.png)
 
 ### Tablet
-![](https://anchr.io/i/iFsx9.png)
+![](https://anchr.io/i/43V3E.png)
 
 ## How tun run?
 1. Enable annotation preprocessing in Android Studio.
