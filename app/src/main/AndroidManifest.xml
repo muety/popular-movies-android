@@ -27,6 +27,12 @@
                 android:value="com.github.n1try.popularmovies.ui.MainActivity" />
 
         </activity>
+
+        <provider
+            android:authorities="@string/content_authority"
+            android:name=".persistence.FavoriteMoviesProvider"
+            android:exported="false"
+            android:syncable="true" />
     </application>
 
 </manifest>

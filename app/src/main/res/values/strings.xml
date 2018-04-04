@@ -1,4 +1,5 @@
 <resources>
+    <string name="content_authority">com.github.n1try.popularmovies</string>
     <string name="display_date_format">EEE, MMM d, yyyy</string>
     <string name="app_name">Popular Movies</string>
     <string name="title_popular_movies">Popular Movies</string>
@@ -16,4 +17,8 @@
     <string name="offline_message">Could not fetch movies from the internet. Maybe a connection issue?</string>
     <string name="label_trailers">Trailers</string>
     <string name="label_reviews">Reviews</string>
+    <string name="alert_unstarred">Movie was removed from your favorites</string>
+    <string name="alert_unstarred_error">Could not remove movie from your favorites</string>
+    <string name="alert_starred">Added movie to your favorites</string>
+    <string name="alert_starred_error">Could not add movie to your favorites</string>
 </resources>

@@ -4,8 +4,12 @@
 
 package com.github.n1try.popularmovies.ui;
 
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -21,14 +25,15 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.n1try.popularmovies.R;
 import com.github.n1try.popularmovies.api.TmdbApiService;
 import com.github.n1try.popularmovies.model.Movie;
 import com.github.n1try.popularmovies.model.MovieReview;
 import com.github.n1try.popularmovies.model.MovieTrailer;
+import com.github.n1try.popularmovies.persistence.FavoriteMoviesContract;
 import com.github.n1try.popularmovies.utils.AndroidUtils;
 import com.github.n1try.popularmovies.utils.Utils;
 import com.squareup.picasso.Callback;
@@ -68,8 +73,8 @@ public class DetailsFragment extends Fragment {
     TextView reviewsLabelTv;
     @BindView(R.id.details_reviews_lv)
     ListView reviewsLv;
-    @BindView(R.id.details_scroll_view)
-    ScrollView containerSv;
+    @BindView(R.id.details_star_iv)
+    ImageView starIv;
 
     private static final int TRAILER_LIST_LOADER_ID = 1;
     private static final int REVIEWS_LIST_LOADER_ID = 2;
@@ -128,7 +133,51 @@ public class DetailsFragment extends Fragment {
             }
         });
 
+        if (isMovieStarred()) setIconStarred();
+        else setIconUnstarred();
+
+        starIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isMovieStarred()) {
+                    ContentValues values = new ContentValues();
+                    values.put(FavoriteMoviesContract.FavoriteMovieEntry._ID, movie.getId());
+                    values.put(FavoriteMoviesContract.FavoriteMovieEntry.COLUMN_TITLE, movie.getTitle());
+                    Uri resultUri = getActivity().getContentResolver().insert(FavoriteMoviesContract.FavoriteMovieEntry.CONTENT_URI, values);
+                    if (resultUri != null) {
+                        setIconStarred();
+                        Toast.makeText(getContext(), getString(R.string.alert_starred), Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(getContext(), getString(R.string.alert_starred_error), Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    int numDeleted = getActivity().getContentResolver().delete(
+                            ContentUris.withAppendedId(FavoriteMoviesContract.FavoriteMovieEntry.CONTENT_URI, Double.valueOf(movie.getId()).longValue()),
+                            null,
+                            null);
+                    if (numDeleted > 0) {
+                        setIconUnstarred();
+                        Toast.makeText(getContext(), getString(R.string.alert_unstarred), Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(getContext(), getString(R.string.alert_unstarred_error), Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        });
+
         return view;
+    }
+
+    private void setIconStarred() {
+        Drawable mIcon = ContextCompat.getDrawable(getContext(), R.drawable.ic_star_black_48dp);
+        mIcon.setColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.SRC_IN);
+        starIv.setImageDrawable(mIcon);
+    }
+
+    private void setIconUnstarred() {
+        Drawable mIcon = ContextCompat.getDrawable(getContext(), R.drawable.ic_star_border_black_48dp);
+        mIcon.setColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.SRC_IN);
+        starIv.setImageDrawable(mIcon);
     }
 
     private void showPlaceholderImage() {
@@ -142,6 +191,16 @@ public class DetailsFragment extends Fragment {
     private void hidePlaceholderImage() {
         movieCoverPlaceholderContainer.setVisibility(View.GONE);
         movieCoverIv.setVisibility(View.VISIBLE);
+    }
+
+    private boolean isMovieStarred() {
+        Cursor result = getActivity().getContentResolver().query(
+                ContentUris.withAppendedId(FavoriteMoviesContract.FavoriteMovieEntry.CONTENT_URI, Double.valueOf(movie.getId()).longValue()),
+                new String[]{FavoriteMoviesContract.FavoriteMovieEntry._ID},
+                null,
+                null,
+                null);
+        return result != null && result.getCount() > 0;
     }
 
     private Bundle createLoaderBundle() {
