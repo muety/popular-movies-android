@@ -58,6 +58,7 @@ public class OverviewFragment extends Fragment {
     private static final int MOVIE_LIST_LOADER_ID = 0;
     private static final int FAVORITE_MOVIE_LIST_LOADER_ID = 10;
     private static final String KEY_LIST_INSTANCE_STATE = "lv_state";
+    private static final String KEY_LIST_MOVIES = "movie_list";
 
     @BindView(R.id.main_movies_gv)
     GridView moviesContainer;
@@ -72,6 +73,7 @@ public class OverviewFragment extends Fragment {
     private MovieSortOrder currentOrder;
     private MovieSortOrder currentLoaderState;
     private Parcelable listInstanceState;
+    private List<Movie> movieList;
 
     private OnMovieSelectedListener mMovieSelectedListener;
     private OnDataLoadedListener mDataLoadedListener;
@@ -82,6 +84,7 @@ public class OverviewFragment extends Fragment {
         setHasOptionsMenu(true);
         if (savedInstanceState != null) {
             listInstanceState = savedInstanceState.getParcelable(KEY_LIST_INSTANCE_STATE);
+            movieList = savedInstanceState.getParcelableArrayList(KEY_LIST_MOVIES);
         }
     }
 
@@ -110,7 +113,11 @@ public class OverviewFragment extends Fragment {
         prefs = getActivity().getPreferences(Context.MODE_PRIVATE);
         currentOrder = MovieSortOrder.valueOf(prefs.getString(KEY_SORT_ORDER, MovieSortOrder.POPULAR.name()));
 
-        initOrRestartLoader();
+        if (movieList == null || movieList.isEmpty()) {
+            initOrRestartLoader();
+        } else {
+            postMoviesLoaded(movieList);
+        }
 
         moviesContainer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -139,6 +146,7 @@ public class OverviewFragment extends Fragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(KEY_LIST_INSTANCE_STATE, moviesContainer.onSaveInstanceState());
+        outState.putParcelableArrayList(KEY_LIST_MOVIES, (ArrayList<Movie>) movieList);
     }
 
     @Override
@@ -187,10 +195,15 @@ public class OverviewFragment extends Fragment {
      * @param i Position of Movie to select
      */
     public void selectMovieByIndex(int i) {
+        i = Math.max(i, 0);
         if (movieAdapter.getCount() > i - 1) {
             if (mMovieSelectedListener != null)
                 mMovieSelectedListener.onMovieSelected(movieAdapter.getItem(i));
         }
+    }
+
+    public void selectMovie(Movie movie) {
+        selectMovieByIndex(movieAdapter.getPosition(movie));
     }
 
     public MovieSortOrder getSortOrder() {
@@ -295,7 +308,7 @@ public class OverviewFragment extends Fragment {
     };
 
     private void postMoviesLoaded(List<Movie> movies) {
-        loadingDialog.dismiss();
+        if (loadingDialog != null) loadingDialog.dismiss();
 
         if ((movies.isEmpty()) && !AndroidUtils.isNetworkAvailable(getContext())) {
             moviesContainer.setVisibility(View.GONE);
@@ -305,6 +318,7 @@ public class OverviewFragment extends Fragment {
             offlineContainer.setVisibility(View.GONE);
         }
 
+        movieList = movies;
         if (currentOrder == MovieSortOrder.FAVORITE || currentOrder != currentLoaderState) {
             // Initial load
             movieAdapter = new MovieItemAdapter(getActivity().getApplicationContext(), movies);
@@ -315,6 +329,7 @@ public class OverviewFragment extends Fragment {
         } else {
             // Load caused by infinite scrolling
             movieAdapter.addAll(movies);
+
             movieAdapter.notifyDataSetChanged();
         }
 

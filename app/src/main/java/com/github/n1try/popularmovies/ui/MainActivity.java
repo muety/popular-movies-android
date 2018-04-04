@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements OverviewFragment.
     public static final String KEY_HIDE_LOADING_DIALOG = "hide_loading_dialog";
     public static final String KEY_MOVIE_ID = "movie_id";
 
+    private static final String KEY_ACTIVE_MOVIE = "active_movie";
     private static final String TAG_OVERVIEW_FRAGMENT = "overview_fragment";
 
     @Nullable
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements OverviewFragment.
     private FragmentManager fragmentManager;
     private OverviewFragment overviewFragment;
     private Movie activeMovie;
+    private Movie movieToSelect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +54,21 @@ public class MainActivity extends AppCompatActivity implements OverviewFragment.
             overviewFragment = foundFragment;
         }
 
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(KEY_ACTIVE_MOVIE)) {
+                movieToSelect = savedInstanceState.getParcelable(KEY_ACTIVE_MOVIE);
+            }
+        }
+
         updateTitle();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (activeMovie != null) {
+            outState.putParcelable(KEY_ACTIVE_MOVIE, activeMovie);
+        }
     }
 
     @Override
@@ -78,7 +94,13 @@ public class MainActivity extends AppCompatActivity implements OverviewFragment.
     @Override
     public void onDataLoaded() {
         if (isTabletLayout() && activeMovie == null) {
-            overviewFragment.selectMovieByIndex(0);
+            if (movieToSelect != null) {
+                overviewFragment.selectMovie(movieToSelect);
+                movieToSelect = null;
+            }
+            else {
+                overviewFragment.selectMovieByIndex(0);
+            }
         }
 
         updateTitle();
